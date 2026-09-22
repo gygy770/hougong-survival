@@ -1862,17 +1862,200 @@ button,input{
 }
 
 /* =====================================================
-   iPhone 動態可視高度
+   角色頁 iPhone 比例修正版
 ===================================================== */
 
 @media (max-width:480px){
 
-  #startScreen,
-  #characterScreen,
-  #hallScreen{
+  #characterScreen{
     height:100dvh;
     min-height:100dvh;
     max-height:100dvh;
+
+    padding:
+      8px 14px
+      calc(10px + env(safe-area-inset-bottom));
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+  }
+
+
+  #characterScreen .episode{
+    flex:0 0 auto;
+
+    height:22px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:10px;
+    letter-spacing:3px;
+  }
+
+
+  /* 整張角色卡 */
+
+  #characterScreen .player-card{
+    flex:1 1 auto;
+
+    min-height:0;
+
+    margin-top:6px;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+  }
+
+
+  /* 人物圖約佔手機三成 */
+
+  #characterScreen .player-visual{
+    flex:0 0 31dvh;
+
+    height:31dvh;
+  }
+
+
+  #characterScreen .player-visual img{
+    object-position:center 30%;
+  }
+
+
+  #characterScreen .player-visual::after{
+    height:50px;
+  }
+
+
+  /* 屬性資料區 */
+
+  #characterScreen .character-info{
+    flex:1 1 auto;
+
+    min-height:0;
+
+    padding:
+      10px 12px 8px;
+
+    display:grid;
+
+    grid-template-columns:
+      minmax(0,1fr)
+      minmax(0,1fr);
+
+    grid-template-rows:
+      auto
+      auto
+      auto
+      auto;
+
+    column-gap:24px;
+    row-gap:0;
+
+    align-content:start;
+
+    overflow:hidden;
+  }
+
+
+  /* 姓名 */
+
+  #characterScreen .character-name{
+    grid-column:1 / -1;
+
+    margin:0 0 9px;
+
+    font-size:21px;
+
+    line-height:1.2;
+
+    letter-spacing:4px;
+  }
+
+
+  /* 每一項資料 */
+
+  #characterScreen .character-line{
+    min-width:0;
+
+    padding:
+      7px 1px;
+
+    display:flex;
+    flex-direction:column;
+
+    align-items:flex-start;
+    justify-content:flex-start;
+
+    gap:3px;
+
+    border-bottom:
+      1px solid
+      rgba(255,255,255,.07);
+  }
+
+
+  #characterScreen .character-label{
+    font-size:9px;
+
+    line-height:1.2;
+
+    letter-spacing:1px;
+  }
+
+
+  #characterScreen .character-value{
+    width:100%;
+
+    text-align:left;
+
+    font-size:12px;
+
+    line-height:1.35;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+  }
+
+
+  #characterScreen .hidden-value{
+    font-size:13px;
+
+    letter-spacing:3px;
+  }
+
+
+  /* 底部主要按鈕 */
+
+  #characterScreen .main-button{
+    flex:0 0 auto;
+
+    margin-top:7px;
+
+    padding:13px;
+
+    font-size:14px;
+
+    line-height:1.2;
+
+    letter-spacing:5px;
+  }
+
+
+  /* 測試按鈕不要壓住正式按鈕 */
+
+  .dev-button{
+    top:70px;
+    right:8px;
+    bottom:auto;
   }
 
 }
