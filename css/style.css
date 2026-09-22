@@ -1503,3 +1503,129 @@ button,input{
   }
 
 }
+
+/* =====================================================
+   首頁手機單畫面
+===================================================== */
+
+@media (max-width:480px){
+
+  #startScreen{
+    position:relative;
+
+    height:100svh;
+    min-height:100svh;
+    max-height:100svh;
+
+    overflow:hidden;
+
+    background:#150609;
+  }
+
+
+  /* 封面直接撐滿手機 */
+
+  #startScreen .home-hero{
+    width:100%;
+    height:100%;
+
+    background-size:cover;
+    background-position:center top;
+  }
+
+
+  /* 真正可以操作的區域壓在封面下方 */
+
+  #startScreen .home-content{
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    z-index:10;
+
+    margin:0;
+
+    padding:
+      90px
+      18px
+      calc(
+        15px
+        +
+        env(safe-area-inset-bottom)
+      );
+
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(21,6,9,0),
+        rgba(21,6,9,.90) 38%,
+        #150609 68%
+      );
+  }
+
+
+  /*
+    封面圖片本身已經有標題與故事，
+    手機不再重複顯示第二套。
+  */
+
+  #startScreen .game-title,
+  #startScreen .subtitle,
+  #startScreen .story,
+  #startScreen .home-note{
+    display:none;
+  }
+
+
+  /* 姓名欄 */
+
+  #startScreen .input-group{
+    margin-top:0;
+  }
+
+
+  #startScreen .input-group label{
+    margin-bottom:6px;
+
+    font-size:11px;
+
+    letter-spacing:3px;
+  }
+
+
+  #startScreen .name-input{
+    padding:
+      12px 14px;
+
+    font-size:16px;
+
+    background:
+      rgba(15,3,6,.82);
+
+    backdrop-filter:
+      blur(5px);
+  }
+
+
+  #startScreen .name-rule{
+    margin-top:5px;
+
+    font-size:9px;
+  }
+
+
+  /* 入宮按鈕 */
+
+  #startScreen .main-button{
+    margin-top:9px;
+
+    padding:13px;
+
+    font-size:15px;
+
+    letter-spacing:5px;
+  }
+
+}
