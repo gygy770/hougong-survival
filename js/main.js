@@ -2708,6 +2708,343 @@ function getEventModifier() {
   );
 }
 
+/* =============================
+   結果排行榜讀取
+============================= */
+
+async function loadResultRanking() {
+
+  if (
+    !window.hougongSupabase
+    ||
+    typeof updateResultRanking
+      !== "function"
+  ) {
+    return;
+  }
+
+
+  try {
+
+    let currentRunId =
+      gameState.currentRunId;
+
+    let currentRunNumber =
+      gameState.currentRunNumber;
+
+
+    const user =
+      await getCurrentUser();
+
+
+    if (!user) {
+      console.warn(
+        "排行榜：尚未登入"
+      );
+
+      return;
+    }
+
+
+    /*
+      舊存檔如果沒有 currentRunId，
+      自動找這個帳號最新的同名角色。
+    */
+
+    if (!currentRunId) {
+
+      const {
+        data: latestRuns,
+        error: latestError
+      } =
+        await window
+          .hougongSupabase
+          .from("game_runs")
+          .select(
+            "id, run_number"
+          )
+          .eq(
+            "user_id",
+            user.id
+          )
+          .eq(
+            "player_name",
+            playerData.name
+          )
+          .order(
+            "updated_at",
+            {
+              ascending: false
+            }
+          )
+          .limit(1);
+
+
+      if (latestError) {
+
+        console.error(
+          "排行榜：找不到目前角色",
+          latestError
+        );
+
+        return;
+      }
+
+
+      if (
+        latestRuns
+        &&
+        latestRuns.length
+      ) {
+
+        currentRunId =
+          latestRuns[0].id;
+
+        currentRunNumber =
+          latestRuns[0]
+            .run_number;
+
+        gameState.currentRunId =
+          currentRunId;
+
+        gameState.currentRunNumber =
+          currentRunNumber;
+
+        saveGame();
+
+      }
+
+    }
+
+
+    if (!currentRunId) {
+
+      console.warn(
+        "排行榜：沒有目前遊戲紀錄"
+      );
+
+      return;
+
+    }
+
+
+    /*
+      本局排名
+    */
+
+    const {
+      data: rankRows,
+      error: rankError
+    } =
+      await window
+        .hougongSupabase
+        .rpc(
+          "get_my_run_rank",
+          {
+            target_run_id:
+              currentRunId
+          }
+        );
+
+
+    if (rankError) {
+
+      console.error(
+        "排行榜讀取失敗",
+        rankError
+      );
+
+      return;
+
+    }
+
+
+    const rankData =
+      Array.isArray(rankRows)
+      ?
+      rankRows[0]
+      :
+      rankRows;
+
+
+    if (!rankData) {
+
+      console.warn(
+        "排行榜：沒有排名資料"
+      );
+
+      return;
+
+    }
+
+
+    /*
+      全球統計
+    */
+
+    let globalStats = null;
+
+    const {
+      data: statsRows,
+      error: statsError
+    } =
+      await window
+        .hougongSupabase
+        .rpc(
+          "get_global_stats"
+        );
+
+
+    if (!statsError) {
+
+      globalStats =
+        Array.isArray(statsRows)
+        ?
+        statsRows[0]
+        :
+        statsRows;
+
+    }
+
+
+    /*
+      本帳號個人最佳成績
+    */
+
+    let personalBest = null;
+
+    const {
+      data: bestRows,
+      error: bestError
+    } =
+      await window
+        .hougongSupabase
+        .from("game_runs")
+        .select(
+          "total_score"
+        )
+        .eq(
+          "user_id",
+          user.id
+        )
+        .not(
+          "total_score",
+          "is",
+          null
+        )
+        .order(
+          "total_score",
+          {
+            ascending: false
+          }
+        )
+        .limit(1);
+
+
+    if (
+      !bestError
+      &&
+      bestRows
+      &&
+      bestRows.length
+    ) {
+
+      personalBest =
+        bestRows[0]
+          .total_score;
+
+    }
+
+
+    /*
+      更新結果頁
+    */
+
+    updateResultRanking({
+
+      currentRank:
+        Number(
+          rankData.current_rank
+        ),
+
+      beatenPlayers:
+        Number(
+          rankData.beaten_players
+        ),
+
+      /*
+        這裡刻意使用排名 RPC 的 total_players，
+        因為它就是：
+        1 個角色 = 1 名玩家
+      */
+
+      totalPlayers:
+        Number(
+          rankData.total_players
+        ),
+
+      totalRuns:
+        globalStats
+        ?
+        Number(
+          globalStats.total_runs
+        )
+        :
+        null,
+
+      passedRuns:
+        globalStats
+        ?
+        Number(
+          globalStats.passed_runs
+        )
+        :
+        null,
+
+      personalBest:
+        personalBest === null
+        ?
+        null
+        :
+        Number(
+          personalBest
+        ),
+
+      runNumber:
+        currentRunNumber
+        ??
+        null
+
+    });
+
+
+    console.log(
+      "排行榜已更新",
+      {
+        rank:
+          rankData.current_rank,
+
+        players:
+          rankData.total_players,
+
+        beaten:
+          rankData.beaten_players
+      }
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "排行榜系統錯誤",
+      error
+    );
+
+  }
+
+}
+
 
 /* =============================
    最終選秀結果
@@ -3131,18 +3468,17 @@ async function calculateFinalSelectionResult() {
     不讓玩家盯著空白畫面等資料庫。
   */
 
-  showScreen(
-    "selectionResultScreen"
-  );
+showScreen(
+  "selectionResultScreen"
+);
 
+renderSelectionResult();
 
-  renderSelectionResult();
+saveGame();
 
+loadResultRanking();
 
-  window.scrollTo(
-    0,
-    0
-  );
+window.scrollTo(0, 0);
 
 
   /*
@@ -3392,16 +3728,22 @@ function renderSelectionResult() {
 function restoreGame() {
   renderCharacter();
 
-  if (
-    gameState.screen ===
-    "character"
-  ) {
-    showScreen(
-      "characterScreen"
-    );
+if (
+  gameState.screen ===
+  "result"
+) {
 
-    return;
-  }
+  showScreen(
+    "selectionResultScreen"
+  );
+
+  renderSelectionResult();
+
+  loadResultRanking();
+
+  return;
+
+}
 
   if (
     gameState.screen ===
