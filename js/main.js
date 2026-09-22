@@ -1,6 +1,6 @@
 const SAVE_KEY = "hougong-survival-save-v5";
 const AUTO_RESUME = true;
-const PASS_SCORE = 65;
+const PASS_SCORE = 70;
 
 const AUTH_RETURN_KEY =
   "hougong-auth-return";
