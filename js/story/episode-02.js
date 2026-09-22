@@ -591,10 +591,790 @@ function renderEpisodeTwoNingPinEntrance() {
       "回 答 寧 嬪",
 
     nextAction:
+  renderEpisodeTwoNingPinChoice
+  });
+
+}
+
+/* =====================================================
+   第五幕
+   寧嬪第一次試探
+===================================================== */
+
+function renderEpisodeTwoNingPinChoice() {
+
+  setStoryProgress(
+    2,
+    "ep2_ningpin_first_test"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      "承露宮・正殿",
+
+    title:
+      "話中有話",
+
+    content: `
+
+      寧嬪用杯蓋輕輕撥了撥茶沫。
+
+      <br><br>
+
+      她沒有立刻看你。
+
+      <br><br>
+
+      <div class="story-speaker">
+        寧嬪・蘇婉容
+      </div>
+
+      <br>
+
+      「妹妹今日才入宮，
+      想必家中也教過不少規矩。」
+
+      <br><br>
+
+      她抬起眼。
+
+      <br><br>
+
+      「只是這宮裡的規矩，
+      有時候和書上寫的，
+      並不完全一樣。」
+
+      <br><br>
+
+      「妹妹以為，
+      初入宮中最先該學會什麼？」
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "「少說一句，總比說錯一句好。」",
+        action:
+          function () {
+
+            changeRelationship(
+              "寧嬪",
+              1
+            );
+
+            applyStoryEffects({
+              etiquette: 1
+            });
+
+            setStoryFlag(
+              "ep2_first_answer_quiet",
+              true
+            );
+
+            renderEpisodeTwoNingPinSecondTest(
+              "quiet"
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "「先看清楚身邊的人，再決定該說什麼。」",
+        action:
+          function () {
+
+            applyStoryEffects({
+              alert: 1
+            });
+
+            setStoryFlag(
+              "ep2_first_answer_observe",
+              true
+            );
+
+            renderEpisodeTwoNingPinSecondTest(
+              "observe"
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "「規矩自然要學，只怕有人並不按規矩辦事。」",
+        action:
+          function () {
+
+            changeRelationship(
+              "寧嬪",
+              -1
+            );
+
+            applyStoryEffects({
+              alert: 2
+            });
+
+            setStoryFlag(
+              "ep2_first_answer_sharp",
+              true
+            );
+
+            renderEpisodeTwoNingPinSecondTest(
+              "sharp"
+            );
+
+          }
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   第六幕
+   寧嬪第二次試探
+===================================================== */
+
+function renderEpisodeTwoNingPinSecondTest(
+  firstChoice
+) {
+
+  setStoryProgress(
+    2,
+    "ep2_ningpin_second_test"
+  );
+
+
+  let opening = "";
+
+
+  if (
+    firstChoice === "quiet"
+  ) {
+
+    opening = `
+
+      寧嬪輕輕點了一下頭。
+
+      <br><br>
+
+      「知道什麼時候閉嘴，
+      的確能少惹不少麻煩。」
+
+    `;
+
+  }
+
+
+  else if (
+    firstChoice === "observe"
+  ) {
+
+    opening = `
+
+      寧嬪看了你片刻。
+
+      <br><br>
+
+      「妹妹倒不像第一次進宮的人。」
+
+    `;
+
+  }
+
+
+  else {
+
+    opening = `
+
+      寧嬪的指尖在杯沿停了一瞬。
+
+      <br><br>
+
+      她淡淡笑了。
+
+      <br><br>
+
+      「妹妹說話很直。」
+
+    `;
+
+  }
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      "承露宮・正殿",
+
+    title:
+      "好意",
+
+    content: `
+
+      ${opening}
+
+      <br><br>
+
+      她將茶盞放回桌上。
+
+      <br><br>
+
+      <div class="story-speaker">
+        寧嬪・蘇婉容
+      </div>
+
+      <br>
+
+      「那若有一個素不相識的人，
+      才見妹妹第一面，
+      便處處替妹妹著想……」
+
+      <br><br>
+
+      「妹妹會如何？」
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "「旁人既有好意，我自然先領情。」",
+        action:
+          function () {
+
+            changeRelationship(
+              "寧嬪",
+              1
+            );
+
+            setStoryFlag(
+              "ep2_kindness_accept",
+              true
+            );
+
+            renderEpisodeTwoNingPinFinal(
+              "accept"
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "「情可以領，但欠下的人情總有一天要還。」",
+        action:
+          function () {
+
+            applyStoryEffects({
+              alert: 1
+            });
+
+            setStoryFlag(
+              "ep2_kindness_debt",
+              true
+            );
+
+            renderEpisodeTwoNingPinFinal(
+              "debt"
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "「無緣無故的好，我不敢收得太快。」",
+        action:
+          function () {
+
+            changeRelationship(
+              "寧嬪",
+              1
+            );
+
+            applyStoryEffects({
+              alert: 1
+            });
+
+            setStoryFlag(
+              "ep2_kindness_suspicious",
+              true
+            );
+
+            renderEpisodeTwoNingPinFinal(
+              "suspicious"
+            );
+
+          }
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   第七幕
+   寧嬪結束談話
+===================================================== */
+
+function renderEpisodeTwoNingPinFinal(
+  secondChoice
+) {
+
+  setStoryProgress(
+    2,
+    "ep2_ningpin_final"
+  );
+
+
+  let reaction = "";
+
+
+  if (
+    secondChoice === "accept"
+  ) {
+
+    reaction = `
+
+      寧嬪低頭喝了一口茶。
+
+      <br><br>
+
+      「宮裡有人願意幫你，
+      的確不是壞事。」
+
+      <br><br>
+
+      她說得很平靜。
+
+      <br><br>
+
+      你卻總覺得，
+      這句話似乎還有下一層意思。
+
+    `;
+
+  }
+
+
+  else if (
+    secondChoice === "debt"
+  ) {
+
+    reaction = `
+
+      寧嬪笑了笑。
+
+      <br><br>
+
+      「妹妹倒是算得清楚。」
+
+      <br><br>
+
+      她沒有說這是好，
+      也沒有說不好。
+
+    `;
+
+  }
+
+
+  else {
+
+    reaction = `
+
+      寧嬪第一次真正露出笑意。
+
+      <br><br>
+
+      「謹慎些也好。」
+
+      <br><br>
+
+      「只是人在宮裡，
+      有時候連拒絕別人的好意，
+      也是要付代價的。」
+
+    `;
+
+  }
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      "承露宮・正殿",
+
+    title:
+      "告退",
+
+    content: `
+
+      ${reaction}
+
+      <br><br>
+
+      殿內安靜了一會兒。
+
+      <br><br>
+
+      寧嬪終於擺了擺手。
+
+      <br><br>
+
+      <div class="story-speaker">
+        寧嬪・蘇婉容
+      </div>
+
+      <br>
+
+      「今日也累了。」
+
+      <br><br>
+
+      「先回去安置吧。」
+
+      <br><br>
+
+      你行禮告退。
+
+      <br><br>
+
+      直到走出正殿，
+      你才發現自己的掌心微微出了汗。
+
+      <br><br>
+
+      方才那些話究竟只是閒談，
+
+      還是在試你，
+
+      你現在還無法確定。
+
+    `,
+
+    nextText:
+      "離 開 正 殿",
+
+    nextAction:
+      renderEpisodeTwoMeetShen
+
+  });
+
+}
+
+
+/* =====================================================
+   第八幕
+   初遇沈常在
+===================================================== */
+
+function renderEpisodeTwoMeetShen() {
+
+  setStoryProgress(
+    2,
+    "ep2_meet_shen"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      "承露宮・廊下",
+
+    title:
+      "同批新人",
+
+    content: `
+
+      才走出正殿不遠，
+
+      身後忽然傳來女子的聲音。
+
+      <br><br>
+
+      「姐姐留步。」
+
+      <br><br>
+
+      你回過頭。
+
+      <br><br>
+
+      說話的是今日與你同批入宮的新人。
+
+      <br><br>
+
+      <div class="story-speaker">
+        沈常在・沈知意
+      </div>
+
+      <br>
+
+      她快步走到你身旁，
+
+      臉上的笑意十分自然。
+
+      <br><br>
+
+      「方才在正殿裡，
+      我都不敢抬頭。」
+
+      <br><br>
+
+      「姐姐倒是很鎮定。」
+
+      <br><br>
+
+      她稍稍靠近了一些。
+
+      <br><br>
+
+      「寧嬪娘娘……
+      沒有為難姐姐吧？」
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "「娘娘只是問了幾句家常。」",
+        action:
+          function () {
+
+            changeRelationship(
+              "沈知意",
+              1
+            );
+
+            setStoryFlag(
+              "ep2_shen_answer_vague",
+              true
+            );
+
+            renderEpisodeTwoShenResponse(
+              "vague"
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "「妹妹怎麼這麼關心娘娘問了什麼？」",
+        action:
+          function () {
+
+            applyStoryEffects({
+              alert: 1
+            });
+
+            setStoryFlag(
+              "ep2_shen_answer_probe",
+              true
+            );
+
+            renderEpisodeTwoShenResponse(
+              "probe"
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "只笑了笑，沒有回答。",
+        action:
+          function () {
+
+            setStoryFlag(
+              "ep2_shen_answer_silent",
+              true
+            );
+
+            renderEpisodeTwoShenResponse(
+              "silent"
+            );
+
+          }
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   沈常在反應
+===================================================== */
+
+function renderEpisodeTwoShenResponse(
+  type
+) {
+
+  let response = "";
+
+
+  if (
+    type === "vague"
+  ) {
+
+    response = `
+
+      沈知意似乎鬆了一口氣。
+
+      <br><br>
+
+      「那就好。」
+
+      <br><br>
+
+      「我還怕娘娘會問些難答的話。」
+
+    `;
+
+  }
+
+
+  else if (
+    type === "probe"
+  ) {
+
+    response = `
+
+      沈知意怔了一下。
+
+      <br><br>
+
+      很快又笑起來。
+
+      <br><br>
+
+      「姐姐多心了。」
+
+      <br><br>
+
+      「同一日入宮，
+      我只是想彼此有個照應。」
+
+    `;
+
+  }
+
+
+  else {
+
+    response = `
+
+      你沒有接話。
+
+      <br><br>
+
+      沈知意臉上的笑容停了片刻，
+
+      隨即又若無其事地聊起別的。
+
+    `;
+
+  }
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      "承露宮・廊下",
+
+    title:
+      "一句邀約",
+
+    content: `
+
+      ${response}
+
+      <br><br>
+
+      快到岔路時，
+
+      沈知意忽然壓低了聲音。
+
+      <br><br>
+
+      <div class="story-speaker">
+        沈常在・沈知意
+      </div>
+
+      <br>
+
+      「姐姐若今晚還沒睡……」
+
+      <br><br>
+
+      「亥時，
+      我在後院等你。」
+
+      <br><br>
+
+      她沒有解釋要做什麼。
+
+      <br><br>
+
+      說完便向你行了一禮，
+
+      轉身離開。
+
+      <br><br>
+
+      你站在原地，
+
+      看著她的背影消失在轉角。
+
+    `,
+
+    nextText:
+      "回 到 住 處",
+
+    nextAction:
       function () {
 
         alert(
-          "下一步：寧嬪的三個回答選項"
+          "下一幕：入宮第一夜"
         );
 
       }
@@ -602,7 +1382,6 @@ function renderEpisodeTwoNingPinEntrance() {
   });
 
 }
-
 
 /* =====================================================
    對外提供

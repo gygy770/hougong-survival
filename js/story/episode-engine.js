@@ -627,6 +627,57 @@ function applyStoryEffects(
 
 }
 
+/* =====================================================
+   NPC 關係系統
+===================================================== */
+
+function changeRelationship(
+  npc,
+  amount
+) {
+
+  if (!gameState.relationships) {
+    gameState.relationships = {};
+  }
+
+
+  const current =
+    Number(
+      gameState.relationships[npc]
+      || 0
+    );
+
+
+  gameState.relationships[npc] =
+    current + amount;
+
+
+  if (
+    typeof saveGame ===
+    "function"
+  ) {
+    saveGame();
+  }
+
+}
+
+
+function getRelationship(
+  npc
+) {
+
+  if (!gameState.relationships) {
+    return 0;
+  }
+
+
+  return Number(
+    gameState.relationships[npc]
+    || 0
+  );
+
+}
+
 
 /* =====================================================
    寫入故事旗標
@@ -735,3 +786,9 @@ window.storyEngineChoose =
 
 window.storyEngineNext =
   storyEngineNext;
+
+window.changeRelationship =
+  changeRelationship;
+
+window.getRelationship =
+  getRelationship;
