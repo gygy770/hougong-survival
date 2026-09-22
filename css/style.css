@@ -1860,3 +1860,19 @@ button,input{
   }
 
 }
+
+/* =====================================================
+   iPhone 動態可視高度
+===================================================== */
+
+@media (max-width:480px){
+
+  #startScreen,
+  #characterScreen,
+  #hallScreen{
+    height:100dvh;
+    min-height:100dvh;
+    max-height:100dvh;
+  }
+
+}

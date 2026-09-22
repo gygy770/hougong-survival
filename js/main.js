@@ -163,15 +163,60 @@ function clamp(number, min, max) {
 }
 
 function showScreen(id) {
+
   document
     .querySelectorAll(".screen")
     .forEach(screen => {
-      screen.style.display = "none";
+
+      screen.style.display =
+        "none";
+
     });
 
-  document
-    .getElementById(id)
-    .style.display = "block";
+
+  const target =
+    document.getElementById(id);
+
+  if (!target) {
+    return;
+  }
+
+
+  const isMobile =
+    window.matchMedia(
+      "(max-width: 480px)"
+    ).matches;
+
+
+  if (
+    isMobile
+    &&
+    id === "characterScreen"
+  ) {
+
+    target.style.display =
+      "flex";
+
+  }
+
+  else if (
+    isMobile
+    &&
+    id === "hallScreen"
+  ) {
+
+    target.style.display =
+      "grid";
+
+  }
+
+  else {
+
+    target.style.display =
+      "block";
+
+  }
+
 }
 
 function updateStatus() {
