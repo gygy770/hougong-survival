@@ -2481,10 +2481,3 @@ loadResultRankingData();
 
 }
 
-function enterEpisodeTwo() {
-
-  alert(
-    "第二集・初入宮門\n即將開始"
-  );
-
-}
