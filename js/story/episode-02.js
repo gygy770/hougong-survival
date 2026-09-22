@@ -1371,10 +1371,1047 @@ function renderEpisodeTwoShenResponse(
       "回 到 住 處",
 
     nextAction:
+      renderEpisodeTwoFirstNight
+
+  });
+
+}
+
+/* =====================================================
+   第九幕
+   入宮第一夜
+===================================================== */
+
+function renderEpisodeTwoFirstNight() {
+
+  setStoryProgress(
+    2,
+    "ep2_first_night"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      gameState.palaceResidence,
+
+    title:
+      "第一夜",
+
+    content: `
+
+      夜色漸深。
+
+      <br><br>
+
+      青禾正在替你清點今日送來的東西。
+
+      <br><br>
+
+      忽然，
+
+      她的動作停了下來。
+
+      <br><br>
+
+      <div class="story-speaker">
+        青禾
+      </div>
+
+      <br>
+
+      「小主……」
+
+      <br><br>
+
+      「賞賜冊上寫著一支
+      赤金點翠簪。」
+
+      <br><br>
+
+      「可箱子裡沒有。」
+
+      <br><br>
+
+      話音才落，
+
+      門外又傳來腳步聲。
+
+      <br><br>
+
+      小順子在門外低聲道：
+
+      <br><br>
+
+      「小主若想知道承露宮裡
+      哪些事該碰、哪些事別碰……」
+
+      <br><br>
+
+      「奴才倒知道一些。」
+
+      <br><br>
+
+      桌上同時還放著
+      沈知意稍早送來的字條。
+
+      <br><br>
+
+      <strong>
+        「亥時，後院。」
+      </strong>
+
+      <br><br>
+
+      今晚，
+
+      你不可能什麼事都顧到。
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "先查那支不見的金簪",
+        action:
+          renderEpisodeTwoHairpin
+      },
+
+      {
+        text:
+          "按約去見沈知意",
+        action:
+          renderEpisodeTwoShenNight
+      },
+
+      {
+        text:
+          "留下小順子，問問承露宮的事",
+        action:
+          renderEpisodeTwoXiaoShunzi
+      },
+
+      {
+        text:
+          "今晚什麼都不碰，先看看會發生什麼",
+        action:
+          renderEpisodeTwoObserveNight
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   路線 A
+   金簪
+===================================================== */
+
+function renderEpisodeTwoHairpin() {
+
+  setStoryProgress(
+    2,
+    "ep2_hairpin"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      gameState.palaceResidence,
+
+    title:
+      "少了一件",
+
+    content: `
+
+      你讓青禾重新清點了一遍。
+
+      <br><br>
+
+      冊子上的確寫著：
+
+      <br><br>
+
+      <strong>
+        赤金點翠簪一支。
+      </strong>
+
+      <br><br>
+
+      可裝首飾的匣子裡，
+
+      只有一個空位。
+
+      <br><br>
+
+      更奇怪的是，
+
+      匣子外頭的封條並沒有被撕開過。
+
+      <br><br>
+
+      青禾壓低聲音。
+
+      <br><br>
+
+      「若真少了東西……」
+
+      <br><br>
+
+      「恐怕不是進了屋才少的。」
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "讓青禾悄悄去問送賞賜的人",
+        action:
+          function () {
+
+            changeRelationship(
+              "青禾",
+              1
+            );
+
+            applyStoryEffects({
+              alert: 1
+            });
+
+            setStoryFlag(
+              "missing_hairpin_discreet",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "hairpin",
+              `
+                青禾將冊子收進袖中。
+
+                <br><br>
+
+                「奴婢明白。」
+
+                <br><br>
+
+                她沒有再多問。
+
+                <br><br>
+
+                只是離開前，
+                又回頭看了一眼那只空匣子。
+              `
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "先把這件事記下，今晚不要驚動任何人",
+        action:
+          function () {
+
+            applyStoryEffects({
+              alert: 2
+            });
+
+            setStoryFlag(
+              "missing_hairpin_watch",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "hairpin",
+              `
+                你親手把冊子合上。
+
+                <br><br>
+
+                「當作什麼都沒發現。」
+
+                <br><br>
+
+                青禾看了你一眼，
+                輕輕應了聲是。
+
+                <br><br>
+
+                那只空匣子被重新放回原處。
+              `
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "立刻叫人去找內務府問清楚",
+        action:
+          function () {
+
+            setStoryFlag(
+              "missing_hairpin_confront",
+              true
+            );
+
+            changeRelationship(
+              "內務府",
+              -1
+            );
+
+            finishEpisodeTwoNight(
+              "hairpin",
+              `
+                青禾明顯愣了一下。
+
+                <br><br>
+
+                但還是領命出去傳話。
+
+                <br><br>
+
+                不到半個時辰，
+
+                你新入宮第一夜便追問賞賜的消息，
+
+                已經傳出了這間屋子。
+              `
+            );
+
+          }
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   路線 B
+   沈知意
+===================================================== */
+
+function renderEpisodeTwoShenNight() {
+
+  setStoryProgress(
+    2,
+    "ep2_shen_night"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      "承露宮・後院",
+
+    title:
+      "亥時之約",
+
+    content: `
+
+      亥時。
+
+      <br><br>
+
+      後院幾乎沒有燈火。
+
+      <br><br>
+
+      沈知意已經在樹下等你。
+
+      <br><br>
+
+      她見你真的來了，
+
+      神情似乎輕鬆不少。
+
+      <br><br>
+
+      <div class="story-speaker">
+        沈常在・沈知意
+      </div>
+
+      <br>
+
+      「今日進宮以前，
+
+      我聽見兩個管事太監在說話。」
+
+      <br><br>
+
+      「其中一個提到了你。」
+
+      <br><br>
+
+      她停了停。
+
+      <br><br>
+
+      「還說……
+      承露宮這次新進來的人，
+
+      有一個值得留意。」
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "「他們還說了什麼？」",
+        action:
+          function () {
+
+            changeRelationship(
+              "沈知意",
+              1
+            );
+
+            setStoryFlag(
+              "shen_night_listen",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "shen",
+              `
+                沈知意沉默片刻。
+
+                <br><br>
+
+                「後面的話我沒聽清。」
+
+                <br><br>
+
+                「但我記得，
+                那個太監是內務府的人。」
+
+                <br><br>
+
+                她說完後一直看著你，
+                像是在等你的反應。
+              `
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "「你為什麼要把這件事告訴我？」",
+        action:
+          function () {
+
+            applyStoryEffects({
+              alert: 1
+            });
+
+            setStoryFlag(
+              "shen_night_probe",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "shen",
+              `
+                沈知意笑意淡了一些。
+
+                <br><br>
+
+                「我們同日入宮。」
+
+                <br><br>
+
+                「若連彼此都不能照應，
+                還能指望誰呢？」
+
+                <br><br>
+
+                她回答得很快。
+
+                <br><br>
+
+                快得讓你一時分不清，
+                這句話是不是早就準備好了。
+              `
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "先不追問，把這件事記在心裡",
+        action:
+          function () {
+
+            setStoryFlag(
+              "shen_night_reserved",
+              true
+            );
+
+            changeRelationship(
+              "沈知意",
+              -1
+            );
+
+            finishEpisodeTwoNight(
+              "shen",
+              `
+                你只是點了點頭。
+
+                <br><br>
+
+                沈知意等了一會兒，
+
+                見你沒有追問，
+
+                便也沒有再說下去。
+
+                <br><br>
+
+                回去的路上，
+
+                你始終記得那四個字。
+
+                <br><br>
+
+                <strong>
+                  內務府的人。
+                </strong>
+              `
+            );
+
+          }
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   路線 C
+   小順子
+===================================================== */
+
+function renderEpisodeTwoXiaoShunzi() {
+
+  setStoryProgress(
+    2,
+    "ep2_xiaoshunzi"
+  );
+
+
+  const choices = [];
+
+
+  if (
+    Number(playerData.money) >= 5
+  ) {
+
+    choices.push({
+
+      text:
+        "把五兩銀子放到桌邊",
+
+      action:
+        function () {
+
+          applyStoryEffects({
+            money: -5
+          });
+
+          changeRelationship(
+            "小順子",
+            2
+          );
+
+          setStoryFlag(
+            "xiaoshunzi_paid",
+            true
+          );
+
+          finishEpisodeTwoNight(
+            "xiaoshunzi",
+            `
+              小順子收銀子的動作很快。
+
+              <br><br>
+
+              「寧嬪娘娘平日最厭惡的，
+              就是在她面前炫耀恩寵。」
+
+              <br><br>
+
+              「還有……」
+
+              <br><br>
+
+              他往門外看了一眼。
+
+              <br><br>
+
+              「娘娘身邊的人，
+              最近常往內務府走。」
+            `
+          );
+
+        }
+
+    });
+
+  }
+
+
+  choices.push({
+
+    text:
+      "「今日先欠你一個人情。」",
+
+    action:
+      function () {
+
+        changeRelationship(
+          "小順子",
+          1
+        );
+
+        setStoryFlag(
+          "xiaoshunzi_favor_debt",
+          true
+        );
+
+        finishEpisodeTwoNight(
+          "xiaoshunzi",
+          `
+            小順子沒有立刻答應。
+
+            <br><br>
+
+            過了一會兒才笑道：
+
+            <br><br>
+
+            「小主記得今日這句話便好。」
+
+            <br><br>
+
+            他只告訴你一件事。
+
+            <br><br>
+
+            寧嬪最不喜歡別人在她面前
+            談論皇上的恩寵。
+          `
+        );
+
+      }
+
+  });
+
+
+  choices.push({
+
+    text:
+      "不問寧嬪，反而問今晚誰在宮裡值夜",
+
+    action:
+      function () {
+
+        applyStoryEffects({
+          alert: 1
+        });
+
+        setStoryFlag(
+          "xiaoshunzi_night_watch",
+          true
+        );
+
+        finishEpisodeTwoNight(
+          "xiaoshunzi",
+          `
+            小順子原本的笑意停了一瞬。
+
+            <br><br>
+
+            「小主問得倒特別。」
+
+            <br><br>
+
+            他告訴你今晚後院與側門
+            都有人值夜。
+
+            <br><br>
+
+            只是西側小門，
+
+            在戌時換班時會空上一會兒。
+          `
+        );
+
+      }
+
+  });
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      gameState.palaceResidence,
+
+    title:
+      "消息的價錢",
+
+    content: `
+
+      你讓青禾把小順子叫了進來。
+
+      <br><br>
+
+      他站得規矩，
+
+      臉上卻一直帶著笑。
+
+      <br><br>
+
+      <div class="story-speaker">
+        小順子
+      </div>
+
+      <br>
+
+      「這宮裡的事，
+      有些能問。」
+
+      <br><br>
+
+      「有些能聽。」
+
+      <br><br>
+
+      「也有些事……」
+
+      <br><br>
+
+      「知道了反倒睡不好。」
+
+    `,
+
+    choices:
+      choices
+
+  });
+
+}
+
+
+/* =====================================================
+   路線 D
+   按兵不動
+===================================================== */
+
+function renderEpisodeTwoObserveNight() {
+
+  setStoryProgress(
+    2,
+    "ep2_observe_night"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      gameState.palaceResidence,
+
+    title:
+      "不動",
+
+    content: `
+
+      你沒有追查金簪。
+
+      <br><br>
+
+      也沒有赴沈知意的約。
+
+      <br><br>
+
+      小順子被你打發走後，
+
+      屋裡很快安靜下來。
+
+      <br><br>
+
+      青禾替你熄了大半燈火。
+
+      <br><br>
+
+      夜深後，
+
+      外頭忽然傳來很輕的腳步聲。
+
+      <br><br>
+
+      那腳步到了你的門外。
+
+      <br><br>
+
+      停了。
+
+      <br><br>
+
+      沒有敲門。
+
+      <br><br>
+
+      也沒有離開。
+
+    `,
+
+    choices: [
+
+      {
+        text:
+          "走到門邊，從門縫往外看",
+        action:
+          function () {
+
+            applyStoryEffects({
+              alert: 2
+            });
+
+            setStoryFlag(
+              "night_shadow_watch",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "observe",
+              `
+                你沒有出聲。
+
+                <br><br>
+
+                只從門縫看見一道影子
+                從廊下慢慢退開。
+
+                <br><br>
+
+                那人走得很快。
+
+                <br><br>
+
+                你只看清了衣角。
+
+                <br><br>
+
+                是承露宮宮女的衣裳。
+              `
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "低聲叫醒青禾",
+        action:
+          function () {
+
+            changeRelationship(
+              "青禾",
+              1
+            );
+
+            setStoryFlag(
+              "night_shadow_qinghe",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "observe",
+              `
+                青禾醒得極快。
+
+                <br><br>
+
+                她沒有點燈，
+
+                只是安靜走到你身邊。
+
+                <br><br>
+
+                門外的腳步聲很快離開。
+
+                <br><br>
+
+                青禾神色凝重。
+
+                <br><br>
+
+                「小主，
+                奴婢明日去查查。」
+              `
+            );
+
+          }
+      },
+
+
+      {
+        text:
+          "假裝已經睡著",
+        action:
+          function () {
+
+            setStoryFlag(
+              "night_shadow_ignore",
+              true
+            );
+
+            finishEpisodeTwoNight(
+              "observe",
+              `
+                你一動不動。
+
+                <br><br>
+
+                過了很久，
+
+                門外終於傳來腳步離去的聲音。
+
+                <br><br>
+
+                第二天醒來時，
+
+                門前什麼痕跡都沒有。
+
+                <br><br>
+
+                彷彿昨夜只是你的錯覺。
+              `
+            );
+
+          }
+      }
+
+    ]
+
+  });
+
+}
+
+
+/* =====================================================
+   第一夜共同收尾
+===================================================== */
+
+function finishEpisodeTwoNight(
+  route,
+  resultText
+) {
+
+  gameState.episodeTwoNightRoute =
+    route;
+
+
+  setStoryFlag(
+    "episode2_first_night_done",
+    true
+  );
+
+
+  setStoryProgress(
+    2,
+    "ep2_first_night_end"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      gameState.palaceResidence,
+
+    title:
+      "夜深",
+
+    content: `
+
+      ${resultText}
+
+      <br><br>
+
+      夜越來越深。
+
+      <br><br>
+
+      承露宮重新安靜下來。
+
+      <br><br>
+
+      今日才是你入宮的第一天。
+
+      <br><br>
+
+      可你已經明白，
+
+      宮裡很多事情，
+
+      <strong>
+        不會有人把答案直接告訴你。
+      </strong>
+
+      <br><br>
+
+      有些選擇究竟是對是錯，
+
+      恐怕要過很久以後才會知道。
+
+    `,
+
+    nextText:
+      "熄 燈 歇 息",
+
+    nextAction:
       function () {
 
         alert(
-          "下一幕：入宮第一夜"
+          "下一步：第二集結尾與結算"
         );
 
       }
