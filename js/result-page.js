@@ -11,7 +11,7 @@
 
 let RESULT_RANKING_DATA = {
   currentRank: null,
-  beatenRecords: null,
+  beatenPlayers: null,
   beatenPercent: null,
   totalPlayers: null,
   completedSelections: null,
@@ -35,7 +35,7 @@ function resetResultRankingData() {
     currentRank:
       null,
 
-    beatenRecords:
+    beatenPlayers:
       null,
 
     beatenPercent:
@@ -392,14 +392,14 @@ async function loadResultRankingData(
         超越多少場殿選紀錄
       */
 
-      beatenRecords:
-        rank
-        ?
-        Number(
-          rank.beaten_runs
-        )
-        :
-        null,
+     beatenPlayers:
+     rank
+     ?
+     Number(
+     rank.beaten_players
+     )
+     :
+     null,
 
 
       /*
@@ -1398,20 +1398,20 @@ function buildResultShareText() {
 
 
   /*
-    超越紀錄
+    超越玩家
   */
 
   if (
-    RESULT_RANKING_DATA.beatenRecords
+    RESULT_RANKING_DATA.beatenPlayers
     !== null
   ) {
 
     text +=
-      "\n超越紀錄："
+      "\n超越玩家："
       +
-      RESULT_RANKING_DATA.beatenRecords
+      RESULT_RANKING_DATA.beatenPlayers
       +
-      " 場";
+      " 人";
 
   }
 
@@ -1793,7 +1793,7 @@ function buildRankingModalHTML() {
         ${
           rankingValue(
             RESULT_RANKING_DATA.completedSelections,
-            " 場"
+            " 人"
           )
         }
       </span>
@@ -1811,7 +1811,7 @@ function buildRankingModalHTML() {
         ${
           rankingValue(
             RESULT_RANKING_DATA.passedRuns,
-            " 場"
+            " 人"
           )
         }
       </span>
@@ -1846,19 +1846,19 @@ function buildRankingModalHTML() {
     <div class="modal-row">
 
       <span>
-        超越紀錄
+        超越玩家
       </span>
 
       <span>
         ${
-          RESULT_RANKING_DATA.beatenRecords
+          RESULT_RANKING_DATA.beatenPlayers
           === null
           ?
           "尚未連線"
           :
-          RESULT_RANKING_DATA.beatenRecords
+          RESULT_RANKING_DATA.beatenPlayers
           +
-          " 場"
+          " 人"
         }
       </span>
 
@@ -2061,7 +2061,7 @@ function applyRankingToResultPage() {
     }
 
     else if (
-      RESULT_RANKING_DATA.beatenRecords
+      RESULT_RANKING_DATA.beatenPlayers
       === null
     ) {
 
@@ -2073,9 +2073,9 @@ function applyRankingToResultPage() {
     else {
 
       beaten.textContent =
-        RESULT_RANKING_DATA.beatenRecords
+        RESULT_RANKING_DATA.beatenPlayers
         +
-        " 場";
+        " 人";
 
     }
 
@@ -2242,7 +2242,7 @@ function renderSelectionResult() {
         <div class="result-ranking-card">
 
           <div class="result-ranking-label">
-            超越紀錄
+            超越玩家
           </div>
 
           <div
