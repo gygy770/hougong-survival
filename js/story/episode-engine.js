@@ -693,6 +693,56 @@ function ensureStoryScreen() {
 
 
 /* =====================================================
+   選項隨機排列
+
+   預設每次顯示場景時都重新洗牌。
+   若某一幕需要固定順序，在 renderStoryScene 傳入：
+
+   shuffle: false
+===================================================== */
+
+function shuffleStoryChoices(
+  choices = []
+) {
+
+  const list =
+    Array.isArray(choices)
+    ? [...choices]
+    : [];
+
+
+  for (
+    let i = list.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random()
+        *
+        (i + 1)
+      );
+
+
+    const temp =
+      list[i];
+
+    list[i] =
+      list[j];
+
+    list[j] =
+      temp;
+
+  }
+
+
+  return list;
+
+}
+
+
+/* =====================================================
    顯示劇情場景
 ===================================================== */
 
@@ -717,6 +767,8 @@ function renderStoryScene({
 
   choices = [],
 
+  shuffle = true,
+
   nextText = "",
 
   nextAction = null
@@ -736,15 +788,30 @@ function renderStoryScene({
 
   /* ===============================================
      選項按鈕
+
+     預設：每次進入這一幕重新隨機排列。
+     需要固定順序時：shuffle: false
   =============================================== */
+
+  const normalizedChoices =
+    Array.isArray(choices)
+    ? choices
+    : [];
+
+
+  const displayChoices =
+    shuffle === false
+    ? [...normalizedChoices]
+    : shuffleStoryChoices(
+        normalizedChoices
+      );
+
 
   let actionsHTML = "";
 
 
   if (
-    Array.isArray(choices)
-    &&
-    choices.length
+    displayChoices.length
   ) {
 
     actionsHTML = `
@@ -754,7 +821,7 @@ function renderStoryScene({
       >
 
         ${
-          choices
+          displayChoices
             .map(
               (
                 choice,
@@ -976,11 +1043,7 @@ function renderStoryScene({
   =============================================== */
 
   window.__storyChoices =
-    Array.isArray(choices)
-    ?
-    choices
-    :
-    [];
+    displayChoices;
 
 
   window.__storyNextAction =
@@ -1354,6 +1417,10 @@ function setStoryProgress(
 /* =====================================================
    對外提供
 ===================================================== */
+
+window.shuffleStoryChoices =
+  shuffleStoryChoices;
+
 
 window.renderStoryScene =
   renderStoryScene;
