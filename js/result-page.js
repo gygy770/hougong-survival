@@ -940,6 +940,30 @@ function ensureResultPageStyles() {
       letter-spacing:1px;
     }
 
+.result-enter-palace{
+  width:100%;
+  margin-top:8px;
+  padding:11px;
+
+  border:none;
+  border-radius:4px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #b78240,
+      #e6c17b
+    );
+
+  color:#241306;
+
+  font-size:13px;
+  font-weight:bold;
+  letter-spacing:5px;
+
+  cursor:pointer;
+}
+
 
     /* =============================
        分享區
@@ -2180,6 +2204,19 @@ function renderSelectionResult() {
     + playerData.name
     + "，撂牌子，賜花。」";
 
+    const continueButtonHTML =
+  passed
+  ?
+  `
+    <button
+      class="result-enter-palace"
+      onclick="enterEpisodeTwo()"
+    >
+      進 入 後 宮
+    </button>
+  `
+  :
+  "";
 
   card.innerHTML = `
 
@@ -2280,6 +2317,8 @@ function renderSelectionResult() {
         </button>
 
       </div>
+
+      ${continueButtonHTML}
 
     </div>
 
@@ -2439,5 +2478,13 @@ function renderSelectionResult() {
 applyRankingToResultPage();
 
 loadResultRankingData();
+
+}
+
+function enterEpisodeTwo() {
+
+  alert(
+    "第二集・初入宮門\n即將開始"
+  );
 
 }
