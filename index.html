@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+<title>後宮生還錄</title>
+
+
+</head>
+
+
+<body>
+
+<div class="game">
+
+
+<section id="startScreen" class="screen">
+
+  <div class="home-hero">
+    <div class="home-seal"><span>宮</span></div>
+  </div>
+
+  <div class="home-content">
+
+    <h1 class="game-title">
+      後宮生還錄
+    </h1>
+
+    <div class="subtitle">
+      你，能活到第幾集？
+    </div>
+
+    <div class="story">
+      三年一度選秀再開。
+      <br><br>
+      你只是萬千秀女中的其中一人。
+      <br><br>
+      <strong>
+        今天，你將第一次踏入宮門。
+      </strong>
+    </div>
+
+    <div class="input-group">
+
+      <label>秀女姓名</label>
+
+      <input
+        id="playerName"
+        class="name-input"
+        maxlength="8"
+        autocomplete="off"
+        placeholder="請輸入中文姓名"
+      >
+
+      <div class="name-rule">
+        僅限中文，不可輸入英文、數字、空白或標點符號。
+      </div>
+
+    </div>
+
+    <button
+      class="main-button"
+      onclick="startGame()">
+      入 宮
+    </button>
+
+    <div class="home-note">
+      一步踏入，此後命運不由人。
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<section id="characterScreen" class="screen">
+
+  <div class="episode">
+    第一集・選秀
+  </div>
+
+  <div class="player-card">
+
+    <div class="player-visual">
+
+      <div class="player-label">
+        本局角色
+      </div>
+
+      <img
+        id="playerVisual"
+        alt="本局角色"
+      >
+
+    </div>
+
+    <div class="character-info">
+
+      <div
+        id="characterName"
+        class="character-name">
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">身分</div>
+        <div class="character-value">待選秀女</div>
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">家世</div>
+        <div id="family" class="character-value"></div>
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">天賦</div>
+        <div id="talent" class="character-value"></div>
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">性格</div>
+        <div id="personality" class="character-value"></div>
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">弱點</div>
+        <div id="weakness" class="character-value"></div>
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">初始銀兩</div>
+        <div id="money" class="character-value"></div>
+      </div>
+
+      <div class="character-line">
+        <div class="character-label">隱藏特質</div>
+        <div class="character-value hidden-value">？？？</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <button
+    class="main-button"
+    onclick="enterSelection()">
+    前 往 選 秀
+  </button>
+
+</section>
+
+
+
+<section id="selectionScreen" class="screen">
+
+  <div class="selection-header">
+    <div class="episode">
+      第一集・宮門候選區
+    </div>
+  </div>
+
+  <div class="scene">
+
+    <div class="scene-location">
+      宮門候選區
+    </div>
+
+    <div
+      id="eventBanner"
+      class="event-banner">
+      突發事件
+    </div>
+
+    <img
+      id="xiangnang"
+      class="xiangnang"
+      src="images/item-xiangnang-01.png"
+      onclick="pickSachet()"
+      alt="香囊"
+    >
+
+    <div class="event-dialog">
+
+      <div id="eventText"></div>
+
+      <div
+        id="timerBox"
+        class="timer-box">
+
+        <div class="timer-top">
+          <span>反應時間</span>
+          <span id="timerNumber">7.0 秒</span>
+        </div>
+
+        <div class="timer-track">
+          <div
+            id="timerBar"
+            class="timer-bar">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="scene-content">
+
+    <div class="status-bar">
+
+      <div class="status-item">
+        <div class="status-label">人情</div>
+        <div id="favorValue" class="status-value">0</div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-label">警覺</div>
+        <div id="alertValue" class="status-value">0</div>
+      </div>
+
+    </div>
+
+    <div
+      id="resultBox"
+      class="result-box">
+    </div>
+
+    <div
+      id="sachetChoices"
+      class="choice-list">
+
+      <button
+        class="choice-button"
+        onclick="returnSachet()">
+        追上去歸還
+      </button>
+
+      <button
+        class="choice-button"
+        onclick="inspectSachet()">
+        先查看香囊
+      </button>
+
+    </div>
+
+    <button
+      id="continueButton"
+      class="continue-button"
+      onclick="continueSelection()">
+      繼 續 等 候 傳 召
+    </button>
+
+    <button
+      id="enterHallButton"
+      class="continue-button"
+      onclick="enterHall()">
+      進 殿 應 選
+    </button>
+
+  </div>
+
+</section>
+
+
+
+<section id="hallScreen" class="screen">
+
+  <div class="hall-header">
+
+    <div class="episode">
+      第一集・殿選
+    </div>
+
+  </div>
+
+  <div class="hall-scene">
+
+    <div class="hall-location">
+      選秀殿
+    </div>
+
+    <div class="hall-stage">
+
+      <img
+        id="hallEmperor"
+        class="hall-emperor"
+        src="images/npc-emperor-01.png"
+        alt="皇上"
+      >
+
+      <img
+        id="hallEunuch"
+        class="hall-eunuch"
+        src="images/npc-eunuch-01.png"
+        alt="太監"
+      >
+
+      <img
+        id="hallPlayerVisual"
+        class="hall-player"
+        alt="秀女"
+      >
+
+    </div>
+
+    <div
+      id="hallDialog"
+      class="hall-dialog">
+    </div>
+
+  </div>
+
+  <div class="hall-content">
+
+    <div
+      id="hallTitle"
+      class="hall-title">
+      第一關・殿前行禮
+    </div>
+
+    <div
+      id="hallNotice"
+      class="hall-notice">
+
+      指針越靠近中央，
+      禮儀評價越高。
+
+    </div>
+
+
+    <div
+      id="etiquetteGame"
+      class="etiquette-game">
+
+      <div class="etiquette-title">
+        抓準時機行禮
+      </div>
+
+      <div class="etiquette-tip">
+        中央金色區域為最佳時機
+      </div>
+
+      <div
+        id="balanceTrack"
+        class="balance-track">
+
+        <div
+          id="goodZone"
+          class="good-zone">
+        </div>
+
+        <div
+          id="perfectZone"
+          class="perfect-zone">
+        </div>
+
+        <div
+          id="etiquettePointer"
+          class="etiquette-pointer">
+        </div>
+
+      </div>
+
+      <button
+        id="bowButton"
+        class="bow-button"
+        onclick="stopEtiquette()">
+        行 禮
+      </button>
+
+      <div
+        id="etiquetteResult"
+        class="etiquette-result">
+      </div>
+
+      <div class="score-row">
+
+        <span>
+          禮儀分數
+        </span>
+
+        <span
+          id="etiquetteScore"
+          class="score-number">
+          0
+        </span>
+
+      </div>
+
+      <button
+        id="nextTestButton"
+        class="next-test-button"
+        onclick="startAnswerTest()">
+        接 受 下一 項 殿 選
+      </button>
+
+    </div>
+
+
+
+    <div id="answerGame">
+
+      <div class="answer-stage">
+        第二關・殿前應答
+      </div>
+
+      <div class="answer-hint">
+        沒有永遠正確的答案。
+        你的個性與天賦會影響結果。
+      </div>
+
+      <div
+        id="questionBox"
+        class="question-box">
+      </div>
+
+      <div
+        id="insightBox"
+        class="insight-box">
+      </div>
+
+      <div
+        id="answerOptions"
+        class="answer-options">
+      </div>
+
+      <div
+        id="answerResult"
+        class="answer-result">
+      </div>
+
+      <div
+        id="answerScoreBox"
+        class="answer-score">
+
+        <span>
+          應答分數
+        </span>
+
+        <span
+          id="answerScoreNumber"
+          class="answer-score-number">
+          0
+        </span>
+
+      </div>
+
+      <button
+        id="judgementButton"
+        class="judgement-button"
+        onclick="calculateSelectionResult()">
+        等 候 留 牌
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<section
+  id="selectionResultScreen"
+  class="screen">
+
+  <div class="episode">
+    第一集・選秀結果
+  </div>
+
+  <div class="final-card">
+
+    <div
+      id="finalSymbol"
+      class="final-symbol">
+    </div>
+
+    <div
+      id="finalTitle"
+      class="final-title">
+    </div>
+
+    <div
+      id="finalSubtitle"
+      class="final-subtitle">
+    </div>
+
+    <div
+      id="finalStory"
+      class="final-story">
+    </div>
+
+    <div class="score-breakdown">
+
+      <div class="score-line">
+        <span>殿前禮儀</span>
+        <span id="finalEtiquette"></span>
+      </div>
+
+      <div class="score-line">
+        <span>殿前應答</span>
+        <span id="finalAnswer"></span>
+      </div>
+
+      <div class="score-line">
+        <span>出身修正</span>
+        <span id="finalFamily"></span>
+      </div>
+
+      <div class="score-line">
+        <span>角色特質修正</span>
+        <span id="finalTrait"></span>
+      </div>
+
+      <div class="score-line">
+        <span>宮門事件修正</span>
+        <span id="finalEvent"></span>
+      </div>
+
+      <div class="score-line">
+        <span>命數</span>
+        <span id="finalLuck"></span>
+      </div>
+
+    </div>
+
+    <div
+      id="finalScore"
+      class="total-score">
+    </div>
+
+    <div
+      id="endingTag"
+      class="ending-tag">
+    </div>
+
+    <button
+      class="restart-button"
+      onclick="restartGame()">
+      重 新 開 局
+    </button>
+
+  </div>
+
+</section>
+
+</div>
+
+
+
+<button
+  class="dev-button"
+  onclick="toggleDevPanel()">
+  測試
+</button>
+
+<div
+  id="devPanel"
+  class="dev-panel">
+
+  <div class="dev-title">
+    開發測試跳關
+  </div>
+
+  <div class="dev-grid">
+
+    <button onclick="devJump('character')">
+      角色卡
+    </button>
+
+    <button onclick="devJump('sachet')">
+      香囊事件
+    </button>
+
+    <button onclick="devJump('called')">
+      太監唱名
+    </button>
+
+    <button onclick="devJump('hall')">
+      殿選行禮
+    </button>
+
+    <button onclick="devJump('answer')">
+      殿選問答
+    </button>
+
+    <button onclick="devJump('result')">
+      選秀總評
+    </button>
+
+  </div>
+
+  <button
+    class="dev-clear"
+    onclick="clearSave()">
+    清除存檔／重新開始
+  </button>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="data/character-data.js"></script>
+<script src="data/selection-questions.js"></script>
+
+<script src="js/supabase-client.js"></script>
+<script src="js/main.js"></script>
+<script src="js/result-page.js"></script>
+</body>
+</html>
