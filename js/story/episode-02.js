@@ -5,6 +5,72 @@
 
 
 /* =====================================================
+   第二集基本設定
+===================================================== */
+
+const EPISODE_TWO_TITLE =
+  "第二集・初入宮門";
+
+
+const EPISODE_TWO_IMAGES = {
+
+  decree:
+    "images/scene-ep02-01-decree.png",
+
+  palaceRoad:
+    "images/scene-ep02-02-palace-road.png",
+
+  chengluPalace:
+    "images/scene-ep02-03-chenglu-palace.png",
+
+  ningpin:
+    "images/scene-ep02-04-ningpin.png",
+
+  shenZhiyi:
+    "images/scene-ep02-05-shen-zhiyi.png",
+
+  firstNight:
+    "images/scene-ep02-06-first-night.png",
+
+  hairpin:
+    "images/scene-ep02-07-hairpin.png",
+
+  shenNight:
+    "images/scene-ep02-08-shen-night.png",
+
+  xiaoshunzi:
+    "images/scene-ep02-09-xiaoshunzi.png",
+
+  nightShadow:
+    "images/scene-ep02-10-night-shadow.png",
+
+  ending:
+    "images/scene-ep02-11-ending.png"
+
+};
+
+
+/* =====================================================
+   第二集共用場景
+===================================================== */
+
+function renderEpisodeTwoScene(
+  options = {}
+) {
+
+  renderStoryScene({
+
+    episode:
+      EPISODE_TWO_TITLE,
+
+    ...options
+
+  });
+
+}
+
+
+/* =====================================================
    取得第一集殿選分數
 ===================================================== */
 
@@ -43,6 +109,7 @@ function getEpisodeTwoScore() {
 
 
   return 0;
+
 }
 
 
@@ -55,21 +122,28 @@ function getInitialPalaceRank(
 ) {
 
   if (score >= 90) {
+
     return "貴人";
+
   }
 
 
   if (score >= 80) {
+
     return "常在";
+
   }
 
 
   if (score >= 70) {
+
     return "答應";
+
   }
 
 
   return "秀女";
+
 }
 
 
@@ -96,22 +170,87 @@ function getInitialPalaceResidence(
 
 
   return "承露宮・後院暖閣";
+
 }
 
 
 /* =====================================================
-   從第一集結果進入第二集
+   同步第二集進度至 Supabase
 ===================================================== */
 
-function enterEpisodeTwo() {
+async function syncEpisodeTwoRun() {
+
+  if (
+    !window.hougongSupabase
+    ||
+    !gameState.currentRunId
+  ) {
+
+    return;
+
+  }
+
+
+  try {
+
+    const {
+      error
+    } =
+      await window
+        .hougongSupabase
+        .from("game_runs")
+        .update({
+
+          palace_rank:
+            playerData.rank,
+
+          current_episode:
+            2,
+
+          max_episode_reached:
+            2,
+
+          status:
+            "alive"
+
+        })
+        .eq(
+          "id",
+          gameState.currentRunId
+        );
+
+
+    if (error) {
+
+      console.error(
+        "第二集進度儲存失敗",
+        error
+      );
+
+    }
+
+  }
+  catch (error) {
+
+    console.error(
+      "第二集 Supabase 錯誤",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   從第一集進入第二集
+===================================================== */
+
+async function enterEpisodeTwo() {
 
   const score =
     getEpisodeTwoScore();
 
-
-  /*
-    未達 70 分不能入宮
-  */
 
   if (score < 70) {
 
@@ -120,6 +259,7 @@ function enterEpisodeTwo() {
     );
 
     return;
+
   }
 
 
@@ -134,10 +274,6 @@ function enterEpisodeTwo() {
       rank
     );
 
-
-  /*
-    更新玩家資料
-  */
 
   playerData.rank =
     rank;
@@ -156,10 +292,6 @@ function enterEpisodeTwo() {
     residence;
 
 
-  /*
-    儲存
-  */
-
   if (
     typeof saveGame ===
     "function"
@@ -170,13 +302,16 @@ function enterEpisodeTwo() {
   }
 
 
+  await syncEpisodeTwoRun();
+
+
   renderEpisodeTwoOpening();
 
 }
 
 
 /* =====================================================
-   第二集第一幕
+   第一幕
    奉旨冊封
 ===================================================== */
 
@@ -198,16 +333,16 @@ function renderEpisodeTwoOpening() {
     );
 
 
-  playerData.rank =
-    rank;
-
-
   const residence =
     gameState.palaceResidence
     ||
     getInitialPalaceResidence(
       rank
     );
+
+
+  playerData.rank =
+    rank;
 
 
   gameState.palaceResidence =
@@ -220,16 +355,19 @@ function renderEpisodeTwoOpening() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "紫禁城・宮門",
 
     title:
       "奉旨冊封",
+
+    speaker:
+      "宣旨太監",
+
+    image:
+      EPISODE_TWO_IMAGES.decree,
 
     content: `
 
@@ -307,7 +445,7 @@ function renderEpisodeTwoOpening() {
 
 /* =====================================================
    第二幕
-   宮道
+   朱牆宮道
 ===================================================== */
 
 function renderEpisodeTwoPalaceRoad() {
@@ -318,16 +456,16 @@ function renderEpisodeTwoPalaceRoad() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "宮中甬道",
 
     title:
       "朱牆深處",
+
+    image:
+      EPISODE_TWO_IMAGES.palaceRoad,
 
     content: `
 
@@ -401,16 +539,16 @@ function renderEpisodeTwoArrival() {
     gameState.palaceResidence;
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮",
 
     title:
       "新居",
+
+    image:
+      EPISODE_TWO_IMAGES.chengluPalace,
 
     content: `
 
@@ -514,16 +652,19 @@ function renderEpisodeTwoNingPinEntrance() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・正殿",
 
     title:
       "寧嬪",
+
+    speaker:
+      "寧嬪・蘇婉容",
+
+    image:
+      EPISODE_TWO_IMAGES.ningpin,
 
     content: `
 
@@ -544,18 +685,6 @@ function renderEpisodeTwoNingPinEntrance() {
       神情甚至稱得上溫和。
 
       <br><br>
-
-      她就是承露宮的主位。
-
-      <br><br>
-
-      <div class="story-speaker">
-
-        寧嬪・蘇婉容
-
-      </div>
-
-      <br>
 
       「起來吧。」
 
@@ -591,10 +720,12 @@ function renderEpisodeTwoNingPinEntrance() {
       "回 答 寧 嬪",
 
     nextAction:
-  renderEpisodeTwoNingPinChoice
+      renderEpisodeTwoNingPinChoice
+
   });
 
 }
+
 
 /* =====================================================
    第五幕
@@ -609,16 +740,19 @@ function renderEpisodeTwoNingPinChoice() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・正殿",
 
     title:
       "話中有話",
+
+    speaker:
+      "寧嬪・蘇婉容",
+
+    image:
+      EPISODE_TWO_IMAGES.ningpin,
 
     content: `
 
@@ -630,13 +764,8 @@ function renderEpisodeTwoNingPinChoice() {
 
       <br><br>
 
-      <div class="story-speaker">
-        寧嬪・蘇婉容
-      </div>
-
-      <br>
-
       「妹妹今日才入宮，
+
       想必家中也教過不少規矩。」
 
       <br><br>
@@ -646,12 +775,15 @@ function renderEpisodeTwoNingPinChoice() {
       <br><br>
 
       「只是這宮裡的規矩，
+
       有時候和書上寫的，
+
       並不完全一樣。」
 
       <br><br>
 
       「妹妹以為，
+
       初入宮中最先該學會什麼？」
 
     `,
@@ -659,8 +791,10 @@ function renderEpisodeTwoNingPinChoice() {
     choices: [
 
       {
+
         text:
           "「少說一句，總比說錯一句好。」",
+
         action:
           function () {
 
@@ -669,49 +803,80 @@ function renderEpisodeTwoNingPinChoice() {
               1
             );
 
+
             applyStoryEffects({
-              etiquette: 1
+
+              etiquette:
+                1
+
             });
+
 
             setStoryFlag(
               "ep2_first_answer_quiet",
               true
             );
 
+
+            gameState.ep2FirstAnswer =
+              "quiet";
+
+
+            saveGame();
+
+
             renderEpisodeTwoNingPinSecondTest(
               "quiet"
             );
 
           }
+
       },
 
 
       {
+
         text:
           "「先看清楚身邊的人，再決定該說什麼。」",
+
         action:
           function () {
 
             applyStoryEffects({
-              alert: 1
+
+              alert:
+                1
+
             });
+
 
             setStoryFlag(
               "ep2_first_answer_observe",
               true
             );
 
+
+            gameState.ep2FirstAnswer =
+              "observe";
+
+
+            saveGame();
+
+
             renderEpisodeTwoNingPinSecondTest(
               "observe"
             );
 
           }
+
       },
 
 
       {
+
         text:
           "「規矩自然要學，只怕有人並不按規矩辦事。」",
+
         action:
           function () {
 
@@ -720,20 +885,34 @@ function renderEpisodeTwoNingPinChoice() {
               -1
             );
 
+
             applyStoryEffects({
-              alert: 2
+
+              alert:
+                2
+
             });
+
 
             setStoryFlag(
               "ep2_first_answer_sharp",
               true
             );
 
+
+            gameState.ep2FirstAnswer =
+              "sharp";
+
+
+            saveGame();
+
+
             renderEpisodeTwoNingPinSecondTest(
               "sharp"
             );
 
           }
+
       }
 
     ]
@@ -772,6 +951,7 @@ function renderEpisodeTwoNingPinSecondTest(
       <br><br>
 
       「知道什麼時候閉嘴，
+
       的確能少惹不少麻煩。」
 
     `;
@@ -815,16 +995,19 @@ function renderEpisodeTwoNingPinSecondTest(
   }
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・正殿",
 
     title:
       "好意",
+
+    speaker:
+      "寧嬪・蘇婉容",
+
+    image:
+      EPISODE_TWO_IMAGES.ningpin,
 
     content: `
 
@@ -836,14 +1019,10 @@ function renderEpisodeTwoNingPinSecondTest(
 
       <br><br>
 
-      <div class="story-speaker">
-        寧嬪・蘇婉容
-      </div>
-
-      <br>
-
       「那若有一個素不相識的人，
+
       才見妹妹第一面，
+
       便處處替妹妹著想……」
 
       <br><br>
@@ -855,8 +1034,10 @@ function renderEpisodeTwoNingPinSecondTest(
     choices: [
 
       {
+
         text:
           "「旁人既有好意，我自然先領情。」",
+
         action:
           function () {
 
@@ -864,46 +1045,73 @@ function renderEpisodeTwoNingPinSecondTest(
               "寧嬪",
               1
             );
+
 
             setStoryFlag(
               "ep2_kindness_accept",
               true
             );
 
+
+            gameState.ep2SecondAnswer =
+              "accept";
+
+
+            saveGame();
+
+
             renderEpisodeTwoNingPinFinal(
               "accept"
             );
 
           }
+
       },
 
 
       {
+
         text:
           "「情可以領，但欠下的人情總有一天要還。」",
+
         action:
           function () {
 
             applyStoryEffects({
-              alert: 1
+
+              alert:
+                1
+
             });
+
 
             setStoryFlag(
               "ep2_kindness_debt",
               true
             );
 
+
+            gameState.ep2SecondAnswer =
+              "debt";
+
+
+            saveGame();
+
+
             renderEpisodeTwoNingPinFinal(
               "debt"
             );
 
           }
+
       },
 
 
       {
+
         text:
           "「無緣無故的好，我不敢收得太快。」",
+
         action:
           function () {
 
@@ -912,20 +1120,34 @@ function renderEpisodeTwoNingPinSecondTest(
               1
             );
 
+
             applyStoryEffects({
-              alert: 1
+
+              alert:
+                1
+
             });
+
 
             setStoryFlag(
               "ep2_kindness_suspicious",
               true
             );
 
+
+            gameState.ep2SecondAnswer =
+              "suspicious";
+
+
+            saveGame();
+
+
             renderEpisodeTwoNingPinFinal(
               "suspicious"
             );
 
           }
+
       }
 
     ]
@@ -964,6 +1186,7 @@ function renderEpisodeTwoNingPinFinal(
       <br><br>
 
       「宮裡有人願意幫你，
+
       的確不是壞事。」
 
       <br><br>
@@ -973,6 +1196,7 @@ function renderEpisodeTwoNingPinFinal(
       <br><br>
 
       你卻總覺得，
+
       這句話似乎還有下一層意思。
 
     `;
@@ -995,6 +1219,7 @@ function renderEpisodeTwoNingPinFinal(
       <br><br>
 
       她沒有說這是好，
+
       也沒有說不好。
 
     `;
@@ -1015,7 +1240,9 @@ function renderEpisodeTwoNingPinFinal(
       <br><br>
 
       「只是人在宮裡，
+
       有時候連拒絕別人的好意，
+
       也是要付代價的。」
 
     `;
@@ -1023,16 +1250,19 @@ function renderEpisodeTwoNingPinFinal(
   }
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・正殿",
 
     title:
       "告退",
+
+    speaker:
+      "寧嬪・蘇婉容",
+
+    image:
+      EPISODE_TWO_IMAGES.ningpin,
 
     content: `
 
@@ -1048,12 +1278,6 @@ function renderEpisodeTwoNingPinFinal(
 
       <br><br>
 
-      <div class="story-speaker">
-        寧嬪・蘇婉容
-      </div>
-
-      <br>
-
       「今日也累了。」
 
       <br><br>
@@ -1067,6 +1291,7 @@ function renderEpisodeTwoNingPinFinal(
       <br><br>
 
       直到走出正殿，
+
       你才發現自己的掌心微微出了汗。
 
       <br><br>
@@ -1092,7 +1317,7 @@ function renderEpisodeTwoNingPinFinal(
 
 /* =====================================================
    第八幕
-   初遇沈常在
+   初遇沈知意
 ===================================================== */
 
 function renderEpisodeTwoMeetShen() {
@@ -1103,16 +1328,19 @@ function renderEpisodeTwoMeetShen() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・廊下",
 
     title:
       "同批新人",
+
+    speaker:
+      "沈常在・沈知意",
+
+    image:
+      EPISODE_TWO_IMAGES.shenZhiyi,
 
     content: `
 
@@ -1134,12 +1362,6 @@ function renderEpisodeTwoMeetShen() {
 
       <br><br>
 
-      <div class="story-speaker">
-        沈常在・沈知意
-      </div>
-
-      <br>
-
       她快步走到你身旁，
 
       臉上的笑意十分自然。
@@ -1147,6 +1369,7 @@ function renderEpisodeTwoMeetShen() {
       <br><br>
 
       「方才在正殿裡，
+
       我都不敢抬頭。」
 
       <br><br>
@@ -1160,6 +1383,7 @@ function renderEpisodeTwoMeetShen() {
       <br><br>
 
       「寧嬪娘娘……
+
       沒有為難姐姐吧？」
 
     `,
@@ -1167,8 +1391,10 @@ function renderEpisodeTwoMeetShen() {
     choices: [
 
       {
+
         text:
           "「娘娘只是問了幾句家常。」",
+
         action:
           function () {
 
@@ -1177,45 +1403,72 @@ function renderEpisodeTwoMeetShen() {
               1
             );
 
+
             setStoryFlag(
               "ep2_shen_answer_vague",
               true
             );
+
+
+            gameState.ep2ShenAnswer =
+              "vague";
+
+
+            saveGame();
+
 
             renderEpisodeTwoShenResponse(
               "vague"
             );
 
           }
+
       },
 
 
       {
+
         text:
           "「妹妹怎麼這麼關心娘娘問了什麼？」",
+
         action:
           function () {
 
             applyStoryEffects({
-              alert: 1
+
+              alert:
+                1
+
             });
+
 
             setStoryFlag(
               "ep2_shen_answer_probe",
               true
             );
 
+
+            gameState.ep2ShenAnswer =
+              "probe";
+
+
+            saveGame();
+
+
             renderEpisodeTwoShenResponse(
               "probe"
             );
 
           }
+
       },
 
 
       {
+
         text:
           "只笑了笑，沒有回答。",
+
         action:
           function () {
 
@@ -1224,11 +1477,20 @@ function renderEpisodeTwoMeetShen() {
               true
             );
 
+
+            gameState.ep2ShenAnswer =
+              "silent";
+
+
+            saveGame();
+
+
             renderEpisodeTwoShenResponse(
               "silent"
             );
 
           }
+
       }
 
     ]
@@ -1239,7 +1501,7 @@ function renderEpisodeTwoMeetShen() {
 
 
 /* =====================================================
-   沈常在反應
+   沈知意反應
 ===================================================== */
 
 function renderEpisodeTwoShenResponse(
@@ -1289,6 +1551,7 @@ function renderEpisodeTwoShenResponse(
       <br><br>
 
       「同一日入宮，
+
       我只是想彼此有個照應。」
 
     `;
@@ -1313,16 +1576,19 @@ function renderEpisodeTwoShenResponse(
   }
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・廊下",
 
     title:
       "一句邀約",
+
+    speaker:
+      "沈常在・沈知意",
+
+    image:
+      EPISODE_TWO_IMAGES.shenZhiyi,
 
     content: `
 
@@ -1336,17 +1602,12 @@ function renderEpisodeTwoShenResponse(
 
       <br><br>
 
-      <div class="story-speaker">
-        沈常在・沈知意
-      </div>
-
-      <br>
-
       「姐姐若今晚還沒睡……」
 
       <br><br>
 
       「亥時，
+
       我在後院等你。」
 
       <br><br>
@@ -1377,6 +1638,7 @@ function renderEpisodeTwoShenResponse(
 
 }
 
+
 /* =====================================================
    第九幕
    入宮第一夜
@@ -1390,16 +1652,19 @@ function renderEpisodeTwoFirstNight() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       gameState.palaceResidence,
 
     title:
       "第一夜",
+
+    speaker:
+      "青禾",
+
+    image:
+      EPISODE_TWO_IMAGES.firstNight,
 
     content: `
 
@@ -1417,17 +1682,12 @@ function renderEpisodeTwoFirstNight() {
 
       <br><br>
 
-      <div class="story-speaker">
-        青禾
-      </div>
-
-      <br>
-
       「小主……」
 
       <br><br>
 
       「賞賜冊上寫著一支
+
       赤金點翠簪。」
 
       <br><br>
@@ -1447,6 +1707,7 @@ function renderEpisodeTwoFirstNight() {
       <br><br>
 
       「小主若想知道承露宮裡
+
       哪些事該碰、哪些事別碰……」
 
       <br><br>
@@ -1456,6 +1717,7 @@ function renderEpisodeTwoFirstNight() {
       <br><br>
 
       桌上同時還放著
+
       沈知意稍早送來的字條。
 
       <br><br>
@@ -1475,31 +1737,46 @@ function renderEpisodeTwoFirstNight() {
     choices: [
 
       {
+
         text:
           "先查那支不見的金簪",
+
         action:
           renderEpisodeTwoHairpin
+
       },
 
+
       {
+
         text:
           "按約去見沈知意",
+
         action:
           renderEpisodeTwoShenNight
+
       },
 
+
       {
+
         text:
           "留下小順子，問問承露宮的事",
+
         action:
           renderEpisodeTwoXiaoShunzi
+
       },
 
+
       {
+
         text:
           "今晚什麼都不碰，先看看會發生什麼",
+
         action:
           renderEpisodeTwoObserveNight
+
       }
 
     ]
@@ -1522,16 +1799,19 @@ function renderEpisodeTwoHairpin() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       gameState.palaceResidence,
 
     title:
       "少了一件",
+
+    speaker:
+      "青禾",
+
+    image:
+      EPISODE_TWO_IMAGES.hairpin,
 
     content: `
 
@@ -1576,8 +1856,10 @@ function renderEpisodeTwoHairpin() {
     choices: [
 
       {
+
         text:
           "讓青禾悄悄去問送賞賜的人",
+
         action:
           function () {
 
@@ -1586,18 +1868,27 @@ function renderEpisodeTwoHairpin() {
               1
             );
 
+
             applyStoryEffects({
-              alert: 1
+
+              alert:
+                1
+
             });
+
 
             setStoryFlag(
               "missing_hairpin_discreet",
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "hairpin",
+
               `
+
                 青禾將冊子收進袖中。
 
                 <br><br>
@@ -1611,32 +1902,46 @@ function renderEpisodeTwoHairpin() {
                 <br><br>
 
                 只是離開前，
+
                 又回頭看了一眼那只空匣子。
+
               `
+
             );
 
           }
+
       },
 
 
       {
+
         text:
           "先把這件事記下，今晚不要驚動任何人",
+
         action:
           function () {
 
             applyStoryEffects({
-              alert: 2
+
+              alert:
+                2
+
             });
+
 
             setStoryFlag(
               "missing_hairpin_watch",
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "hairpin",
+
               `
+
                 你親手把冊子合上。
 
                 <br><br>
@@ -1646,21 +1951,27 @@ function renderEpisodeTwoHairpin() {
                 <br><br>
 
                 青禾看了你一眼，
+
                 輕輕應了聲是。
 
                 <br><br>
 
                 那只空匣子被重新放回原處。
+
               `
+
             );
 
           }
+
       },
 
 
       {
+
         text:
           "立刻叫人去找內務府問清楚",
+
         action:
           function () {
 
@@ -1669,14 +1980,19 @@ function renderEpisodeTwoHairpin() {
               true
             );
 
+
             changeRelationship(
               "內務府",
               -1
             );
 
+
             finishEpisodeTwoNight(
+
               "hairpin",
+
               `
+
                 青禾明顯愣了一下。
 
                 <br><br>
@@ -1690,10 +2006,13 @@ function renderEpisodeTwoHairpin() {
                 你新入宮第一夜便追問賞賜的消息，
 
                 已經傳出了這間屋子。
+
               `
+
             );
 
           }
+
       }
 
     ]
@@ -1705,7 +2024,7 @@ function renderEpisodeTwoHairpin() {
 
 /* =====================================================
    路線 B
-   沈知意
+   沈知意夜會
 ===================================================== */
 
 function renderEpisodeTwoShenNight() {
@@ -1716,16 +2035,19 @@ function renderEpisodeTwoShenNight() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       "承露宮・後院",
 
     title:
       "亥時之約",
+
+    speaker:
+      "沈常在・沈知意",
+
+    image:
+      EPISODE_TWO_IMAGES.shenNight,
 
     content: `
 
@@ -1747,12 +2069,6 @@ function renderEpisodeTwoShenNight() {
 
       <br><br>
 
-      <div class="story-speaker">
-        沈常在・沈知意
-      </div>
-
-      <br>
-
       「今日進宮以前，
 
       我聽見兩個管事太監在說話。」
@@ -1768,6 +2084,7 @@ function renderEpisodeTwoShenNight() {
       <br><br>
 
       「還說……
+
       承露宮這次新進來的人，
 
       有一個值得留意。」
@@ -1777,8 +2094,10 @@ function renderEpisodeTwoShenNight() {
     choices: [
 
       {
+
         text:
           "「他們還說了什麼？」",
+
         action:
           function () {
 
@@ -1787,14 +2106,19 @@ function renderEpisodeTwoShenNight() {
               1
             );
 
+
             setStoryFlag(
               "shen_night_listen",
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "shen",
+
               `
+
                 沈知意沉默片刻。
 
                 <br><br>
@@ -1804,37 +2128,52 @@ function renderEpisodeTwoShenNight() {
                 <br><br>
 
                 「但我記得，
+
                 那個太監是內務府的人。」
 
                 <br><br>
 
                 她說完後一直看著你，
+
                 像是在等你的反應。
+
               `
+
             );
 
           }
+
       },
 
 
       {
+
         text:
           "「你為什麼要把這件事告訴我？」",
+
         action:
           function () {
 
             applyStoryEffects({
-              alert: 1
+
+              alert:
+                1
+
             });
+
 
             setStoryFlag(
               "shen_night_probe",
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "shen",
+
               `
+
                 沈知意笑意淡了一些。
 
                 <br><br>
@@ -1844,6 +2183,7 @@ function renderEpisodeTwoShenNight() {
                 <br><br>
 
                 「若連彼此都不能照應，
+
                 還能指望誰呢？」
 
                 <br><br>
@@ -1853,17 +2193,23 @@ function renderEpisodeTwoShenNight() {
                 <br><br>
 
                 快得讓你一時分不清，
+
                 這句話是不是早就準備好了。
+
               `
+
             );
 
           }
+
       },
 
 
       {
+
         text:
           "先不追問，把這件事記在心裡",
+
         action:
           function () {
 
@@ -1872,14 +2218,19 @@ function renderEpisodeTwoShenNight() {
               true
             );
 
+
             changeRelationship(
               "沈知意",
               -1
             );
 
+
             finishEpisodeTwoNight(
+
               "shen",
+
               `
+
                 你只是點了點頭。
 
                 <br><br>
@@ -1901,10 +2252,13 @@ function renderEpisodeTwoShenNight() {
                 <strong>
                   內務府的人。
                 </strong>
+
               `
+
             );
 
           }
+
       }
 
     ]
@@ -1931,7 +2285,9 @@ function renderEpisodeTwoXiaoShunzi() {
 
 
   if (
-    Number(playerData.money) >= 5
+    Number(
+      playerData.money
+    ) >= 5
   ) {
 
     choices.push({
@@ -1943,27 +2299,37 @@ function renderEpisodeTwoXiaoShunzi() {
         function () {
 
           applyStoryEffects({
-            money: -5
+
+            money:
+              -5
+
           });
+
 
           changeRelationship(
             "小順子",
             2
           );
 
+
           setStoryFlag(
             "xiaoshunzi_paid",
             true
           );
 
+
           finishEpisodeTwoNight(
+
             "xiaoshunzi",
+
             `
+
               小順子收銀子的動作很快。
 
               <br><br>
 
               「寧嬪娘娘平日最厭惡的，
+
               就是在她面前炫耀恩寵。」
 
               <br><br>
@@ -1977,8 +2343,11 @@ function renderEpisodeTwoXiaoShunzi() {
               <br><br>
 
               「娘娘身邊的人，
+
               最近常往內務府走。」
+
             `
+
           );
 
         }
@@ -2001,14 +2370,19 @@ function renderEpisodeTwoXiaoShunzi() {
           1
         );
 
+
         setStoryFlag(
           "xiaoshunzi_favor_debt",
           true
         );
 
+
         finishEpisodeTwoNight(
+
           "xiaoshunzi",
+
           `
+
             小順子沒有立刻答應。
 
             <br><br>
@@ -2026,8 +2400,11 @@ function renderEpisodeTwoXiaoShunzi() {
             <br><br>
 
             寧嬪最不喜歡別人在她面前
+
             談論皇上的恩寵。
+
           `
+
         );
 
       }
@@ -2044,17 +2421,25 @@ function renderEpisodeTwoXiaoShunzi() {
       function () {
 
         applyStoryEffects({
-          alert: 1
+
+          alert:
+            1
+
         });
+
 
         setStoryFlag(
           "xiaoshunzi_night_watch",
           true
         );
 
+
         finishEpisodeTwoNight(
+
           "xiaoshunzi",
+
           `
+
             小順子原本的笑意停了一瞬。
 
             <br><br>
@@ -2064,6 +2449,7 @@ function renderEpisodeTwoXiaoShunzi() {
             <br><br>
 
             他告訴你今晚後院與側門
+
             都有人值夜。
 
             <br><br>
@@ -2071,7 +2457,9 @@ function renderEpisodeTwoXiaoShunzi() {
             只是西側小門，
 
             在戌時換班時會空上一會兒。
+
           `
+
         );
 
       }
@@ -2079,16 +2467,19 @@ function renderEpisodeTwoXiaoShunzi() {
   });
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       gameState.palaceResidence,
 
     title:
       "消息的價錢",
+
+    speaker:
+      "小順子",
+
+    image:
+      EPISODE_TWO_IMAGES.xiaoshunzi,
 
     content: `
 
@@ -2102,13 +2493,8 @@ function renderEpisodeTwoXiaoShunzi() {
 
       <br><br>
 
-      <div class="story-speaker">
-        小順子
-      </div>
-
-      <br>
-
       「這宮裡的事，
+
       有些能問。」
 
       <br><br>
@@ -2146,16 +2532,16 @@ function renderEpisodeTwoObserveNight() {
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       gameState.palaceResidence,
 
     title:
       "不動",
+
+    image:
+      EPISODE_TWO_IMAGES.nightShadow,
 
     content: `
 
@@ -2202,28 +2588,39 @@ function renderEpisodeTwoObserveNight() {
     choices: [
 
       {
+
         text:
           "走到門邊，從門縫往外看",
+
         action:
           function () {
 
             applyStoryEffects({
-              alert: 2
+
+              alert:
+                2
+
             });
+
 
             setStoryFlag(
               "night_shadow_watch",
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "observe",
+
               `
+
                 你沒有出聲。
 
                 <br><br>
 
                 只從門縫看見一道影子
+
                 從廊下慢慢退開。
 
                 <br><br>
@@ -2237,16 +2634,21 @@ function renderEpisodeTwoObserveNight() {
                 <br><br>
 
                 是承露宮宮女的衣裳。
+
               `
+
             );
 
           }
+
       },
 
 
       {
+
         text:
           "低聲叫醒青禾",
+
         action:
           function () {
 
@@ -2255,14 +2657,19 @@ function renderEpisodeTwoObserveNight() {
               1
             );
 
+
             setStoryFlag(
               "night_shadow_qinghe",
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "observe",
+
               `
+
                 青禾醒得極快。
 
                 <br><br>
@@ -2282,17 +2689,23 @@ function renderEpisodeTwoObserveNight() {
                 <br><br>
 
                 「小主，
+
                 奴婢明日去查查。」
+
               `
+
             );
 
           }
+
       },
 
 
       {
+
         text:
           "假裝已經睡著",
+
         action:
           function () {
 
@@ -2301,9 +2714,13 @@ function renderEpisodeTwoObserveNight() {
               true
             );
 
+
             finishEpisodeTwoNight(
+
               "observe",
+
               `
+
                 你一動不動。
 
                 <br><br>
@@ -2321,10 +2738,13 @@ function renderEpisodeTwoObserveNight() {
                 <br><br>
 
                 彷彿昨夜只是你的錯覺。
+
               `
+
             );
 
           }
+
       }
 
     ]
@@ -2359,16 +2779,16 @@ function finishEpisodeTwoNight(
   );
 
 
-  renderStoryScene({
-
-    episode:
-      "第二集・初入宮門",
+  renderEpisodeTwoScene({
 
     location:
       gameState.palaceResidence,
 
     title:
       "夜深",
+
+    image:
+      EPISODE_TWO_IMAGES.firstNight,
 
     content: `
 
@@ -2408,17 +2828,211 @@ function finishEpisodeTwoNight(
       "熄 燈 歇 息",
 
     nextAction:
-      function () {
-
-        alert(
-          "下一步：第二集結尾與結算"
-        );
-
-      }
+      finishEpisodeTwo
 
   });
 
 }
+
+
+/* =====================================================
+   第二集正式結束
+===================================================== */
+
+async function finishEpisodeTwo() {
+
+  gameState.screen =
+    "episode2";
+
+  gameState.currentEpisode =
+    2;
+
+  gameState.storyStep =
+    "ep2_complete";
+
+  gameState.episodeTwoCompleted =
+    true;
+
+
+  setStoryFlag(
+    "episode2_complete",
+    true
+  );
+
+
+  if (
+    typeof saveGame ===
+    "function"
+  ) {
+
+    saveGame();
+
+  }
+
+
+  await syncEpisodeTwoRun();
+
+
+  renderEpisodeTwoEnding();
+
+}
+
+
+/* =====================================================
+   第二集結尾
+===================================================== */
+
+function renderEpisodeTwoEnding() {
+
+  const rank =
+    playerData.rank
+    || "答應";
+
+
+  const residence =
+    gameState.palaceResidence
+    || "承露宮";
+
+
+  renderEpisodeTwoScene({
+
+    location:
+      residence,
+
+    title:
+      "初入宮門・完",
+
+    image:
+      EPISODE_TWO_IMAGES.ending,
+
+    content: `
+
+      天快亮時，
+
+      你才真正睡沉。
+
+      <br><br>
+
+      入宮第一日，
+
+      就這樣過去了。
+
+      <br><br>
+
+      沒有人告訴你，
+
+      今夜遇見的人之中，
+
+      誰值得相信。
+
+      <br><br>
+
+      也沒有人告訴你，
+
+      今日說過的哪一句話，
+
+      會在往後變成救命的繩索，
+
+      又或者……
+
+      <br><br>
+
+      成為套在你頸上的結。
+
+      <div class="story-effect">
+
+        目前位分：
+        <strong>
+          ${rank}
+        </strong>
+
+        <br><br>
+
+        目前居所：
+        <strong>
+          ${residence}
+        </strong>
+
+        <br><br>
+
+        入宮第一夜：
+        已度過
+
+      </div>
+
+      <br>
+
+      宮門已閉。
+
+      <br><br>
+
+      <strong>
+        你真正的後宮生活，
+
+        從明日開始。
+      </strong>
+
+    `,
+
+    nextText:
+      "進 入 第 三 集",
+
+    nextAction:
+      startEpisodeThree
+
+  });
+
+}
+
+
+/* =====================================================
+   第三集入口
+===================================================== */
+
+function startEpisodeThree() {
+
+  alert(
+    "第三集尚未開始製作"
+  );
+
+}
+
+
+/* =====================================================
+   測試入口
+===================================================== */
+
+window.testEpisodeTwoOpening =
+  function () {
+
+    renderEpisodeTwoOpening();
+
+  };
+
+
+window.testEpisodeTwoNingPin =
+  function () {
+
+    renderEpisodeTwoNingPinChoice();
+
+  };
+
+
+window.testEpisodeTwoFirstNight =
+  function () {
+
+    renderEpisodeTwoFirstNight();
+
+  };
+
+
+window.testEpisodeTwoEnding =
+  function () {
+
+    renderEpisodeTwoEnding();
+
+  };
+
 
 /* =====================================================
    對外提供
@@ -2427,5 +3041,18 @@ function finishEpisodeTwoNight(
 window.enterEpisodeTwo =
   enterEpisodeTwo;
 
+
 window.renderEpisodeTwoOpening =
   renderEpisodeTwoOpening;
+
+
+window.renderEpisodeTwoNingPinChoice =
+  renderEpisodeTwoNingPinChoice;
+
+
+window.renderEpisodeTwoFirstNight =
+  renderEpisodeTwoFirstNight;
+
+
+window.renderEpisodeTwoEnding =
+  renderEpisodeTwoEnding;
