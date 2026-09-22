@@ -202,7 +202,11 @@ function showScreen(id) {
   else if (
     isMobile
     &&
-    id === "hallScreen"
+    (
+      id === "selectionScreen"
+      ||
+      id === "hallScreen"
+    )
   ) {
 
     target.style.display =

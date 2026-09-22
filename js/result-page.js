@@ -628,9 +628,9 @@ function ensureResultPageStyles() {
   style.textContent = `
 
     #selectionResultScreen{
-      height:100svh;
-      min-height:100svh;
-      max-height:100svh;
+      height:100dvh;
+      min-height:100dvh;
+      max-height:100dvh;
 
       overflow:hidden;
 
@@ -659,7 +659,7 @@ function ensureResultPageStyles() {
 
 
     #selectionResultScreen .final-card{
-      height:calc(100svh - 51px);
+      height:calc(100dvh - 51px);
 
       margin:0;
       padding:0;
@@ -667,7 +667,7 @@ function ensureResultPageStyles() {
       display:grid;
 
       grid-template-rows:
-        minmax(175px, 34svh)
+        minmax(175px, 34dvh)
         minmax(0, 1fr)
         auto;
 
@@ -1085,7 +1085,7 @@ function ensureResultPageStyles() {
         460px
       );
 
-      max-height:78svh;
+      max-height:78dvh;
 
       overflow-y:auto;
 
@@ -1208,11 +1208,11 @@ function ensureResultPageStyles() {
       #selectionResultScreen .final-card{
         height:
           calc(
-            100svh - 43px
+            100dvh - 43px
           );
 
         grid-template-rows:
-          minmax(150px, 29svh)
+          minmax(150px, 29dvh)
           minmax(0, 1fr)
           auto;
       }
