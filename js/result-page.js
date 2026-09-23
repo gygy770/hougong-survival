@@ -7777,3 +7777,1811 @@ window.syncEpisodeResultToBackend =
     showEpisodeTwoOfficialResult;
 
 })();
+
+/* =====================================================
+   排名顯示美化版
+   直接整段貼到 result-page.js 最底部
+===================================================== */
+
+RESULT_RANKING_DATA = {
+  todayPlayers: null,
+  ...RESULT_RANKING_DATA
+};
+
+
+/* =====================================================
+   台北日期 key
+===================================================== */
+
+function getTaipeiDateKey() {
+
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-CA",
+      {
+        timeZone: "Asia/Taipei",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }
+    ).formatToParts(new Date());
+
+  const year =
+    parts.find(
+      part => part.type === "year"
+    )?.value || "2026";
+
+  const month =
+    parts.find(
+      part => part.type === "month"
+    )?.value || "01";
+
+  const day =
+    parts.find(
+      part => part.type === "day"
+    )?.value || "01";
+
+  return `${year}-${month}-${day}`;
+
+}
+
+
+/* =====================================================
+   簡單 hash
+===================================================== */
+
+function rankingHash(text) {
+
+  let hash = 0;
+
+  for (
+    let i = 0;
+    i < text.length;
+    i++
+  ) {
+
+    hash =
+      (
+        hash * 31
+        +
+        text.charCodeAt(i)
+      ) % 2147483647;
+
+  }
+
+  return Math.abs(hash);
+
+}
+
+
+/* =====================================================
+   取得每日固定三位數亂數
+   同一天固定，不會每刷新就跳
+===================================================== */
+
+function getDailyFakeNumber(type) {
+
+  const todayKey =
+    getTaipeiDateKey();
+
+  const storageKey =
+    `hougong_fake_${type}_${todayKey}`;
+
+  const cached =
+    localStorage.getItem(
+      storageKey
+    );
+
+  if (cached) {
+
+    const cachedNumber =
+      Number(cached);
+
+    if (
+      Number.isFinite(
+        cachedNumber
+      )
+    ) {
+      return cachedNumber;
+    }
+
+  }
+
+  const seed =
+    rankingHash(
+      `${type}-${todayKey}`
+    );
+
+  const fakeNumber =
+    100 + (seed % 900);
+
+  localStorage.setItem(
+    storageKey,
+    String(fakeNumber)
+  );
+
+  return fakeNumber;
+
+}
+
+
+/* =====================================================
+   數字安全轉換
+===================================================== */
+
+function safeRankingNumber(value) {
+
+  const num =
+    Number(value);
+
+  if (!Number.isFinite(num)) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    Math.floor(num)
+  );
+
+}
+
+
+/* =====================================================
+   好看的數字格式
+===================================================== */
+
+function prettyNumber(value) {
+
+  return safeRankingNumber(value)
+    .toLocaleString("zh-TW");
+
+}
+
+
+/* =====================================================
+   顯示用：今日參與人數
+   = 每日三位數亂數 + 真實人數
+===================================================== */
+
+function getDisplayTodayPlayers() {
+
+  const fakeDaily =
+    getDailyFakeNumber(
+      "today_players"
+    );
+
+  const realPlayers =
+    safeRankingNumber(
+      RESULT_RANKING_DATA.todayPlayers
+      ??
+      RESULT_RANKING_DATA.totalPlayers
+    );
+
+  return fakeDaily + realPlayers;
+
+}
+
+
+/* =====================================================
+   顯示用：累積總數
+   = 每日三位數亂數 + 真實累積總數
+===================================================== */
+
+function getDisplayTotalRuns() {
+
+  const fakeDaily =
+    getDailyFakeNumber(
+      "total_runs"
+    );
+
+  const realRuns =
+    safeRankingNumber(
+      RESULT_RANKING_DATA.totalRuns
+    );
+
+  return fakeDaily + realRuns;
+
+}
+
+
+/* =====================================================
+   真實通過率
+   不把假亂數算進去
+===================================================== */
+
+function getRealPassRate() {
+
+  const passedRuns =
+    safeRankingNumber(
+      RESULT_RANKING_DATA.passedRuns
+    );
+
+  const totalRuns =
+    safeRankingNumber(
+      RESULT_RANKING_DATA.totalRuns
+    );
+
+  if (totalRuns <= 0) {
+    return null;
+  }
+
+  const rate =
+    (
+      passedRuns
+      /
+      totalRuns
+    ) * 100;
+
+  return (
+    Math.round(rate * 10)
+    / 10
+  );
+
+}
+
+
+/* =====================================================
+   排名文字
+===================================================== */
+
+function getRankText() {
+
+  if (
+    RESULT_RANKING_DATA.currentRank
+    === null
+    ||
+    RESULT_RANKING_DATA.currentRank
+    === undefined
+  ) {
+    return "尚未連線";
+  }
+
+  return (
+    "第 "
+    +
+    RESULT_RANKING_DATA.currentRank
+    +
+    " 名"
+  );
+
+}
+
+
+function getBeatenText() {
+
+  if (
+    RESULT_RANKING_DATA.beatenPlayers
+    === null
+    ||
+    RESULT_RANKING_DATA.beatenPlayers
+    === undefined
+  ) {
+    return "尚未連線";
+  }
+
+  return (
+    prettyNumber(
+      RESULT_RANKING_DATA.beatenPlayers
+    )
+    +
+    " 人"
+  );
+
+}
+
+
+function getPersonalBestText() {
+
+  if (
+    RESULT_RANKING_DATA.personalBest
+    === null
+    ||
+    RESULT_RANKING_DATA.personalBest
+    === undefined
+  ) {
+    return "尚未連線";
+  }
+
+  return (
+    RESULT_RANKING_DATA.personalBest
+    +
+    " 分"
+  );
+
+}
+
+
+function getRunNumberText() {
+
+  if (
+    RESULT_RANKING_DATA.runNumber
+    === null
+    ||
+    RESULT_RANKING_DATA.runNumber
+    === undefined
+  ) {
+    return "尚未連線";
+  }
+
+  return (
+    "第 "
+    +
+    RESULT_RANKING_DATA.runNumber
+    +
+    " 局"
+  );
+
+}
+
+
+function getPassRateText() {
+
+  const rate =
+    getRealPassRate();
+
+  if (rate === null) {
+    return "尚未連線";
+  }
+
+  return rate + "%";
+
+}
+
+
+/* =====================================================
+   重寫：本集殿選紀錄彈窗
+===================================================== */
+
+function buildRankingModalHTML() {
+
+  return `
+
+    <div class="result-modal-head">
+
+      <div class="result-modal-title">
+        本集殿選紀錄
+      </div>
+
+      <button
+        class="result-modal-close"
+        onclick="closeResultModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-row">
+      <span>今日參與</span>
+      <span>${prettyNumber(getDisplayTodayPlayers())} 人</span>
+    </div>
+
+    <div class="modal-row">
+      <span>累積殿選</span>
+      <span>${prettyNumber(getDisplayTotalRuns())} 場</span>
+    </div>
+
+    <div class="modal-row">
+      <span>真實通過率</span>
+      <span>${getPassRateText()}</span>
+    </div>
+
+    <div class="modal-row">
+      <span>本局排名</span>
+      <span>${getRankText()}</span>
+    </div>
+
+    <div class="modal-row">
+      <span>超越玩家</span>
+      <span>${getBeatenText()}</span>
+    </div>
+
+    <div class="modal-row">
+      <span>個人最佳</span>
+      <span>${getPersonalBestText()}</span>
+    </div>
+
+    <div class="modal-row">
+      <span>本帳號第幾局</span>
+      <span>${getRunNumberText()}</span>
+    </div>
+
+    <div class="modal-note">
+      數據每日更新
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   重寫：結果頁排名區
+===================================================== */
+
+function applyRankingToResultPage() {
+
+  const rank =
+    document.getElementById(
+      "rankingCurrent"
+    );
+
+  const beaten =
+    document.getElementById(
+      "rankingBeaten"
+    );
+
+  if (rank) {
+    rank.textContent =
+      getRankText();
+  }
+
+  if (beaten) {
+    beaten.textContent =
+      getBeatenText();
+  }
+
+}
+
+
+/* =====================================================
+   重寫：更新排名資料
+===================================================== */
+
+function updateResultRanking(data) {
+
+  RESULT_RANKING_DATA = {
+    ...RESULT_RANKING_DATA,
+    ...data
+  };
+
+  applyRankingToResultPage();
+
+  const modal =
+    document.getElementById(
+      "resultModal"
+    );
+
+  const panel =
+    document.getElementById(
+      "resultModalPanel"
+    );
+
+  if (
+    modal
+    &&
+    panel
+    &&
+    modal.classList.contains("show")
+  ) {
+    panel.innerHTML =
+      buildRankingModalHTML();
+  }
+
+}
+
+/* =====================================================
+   殿選統計文案美化版
+   直接貼到 result-page.js 最底部
+===================================================== */
+
+function buildRankingModalHTML() {
+
+  return `
+
+    <div class="result-modal-head">
+
+      <div class="result-modal-title">
+        宮門殿選錄
+      </div>
+
+      <button
+        class="result-modal-close"
+        onclick="closeResultModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-section-title">
+      宮門聲勢
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        今日宮門熱度
+      </span>
+
+      <span>
+        ${prettyNumber(
+          getDisplayTodayPlayers()
+        )} 人
+      </span>
+
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        累積殿選聲勢
+      </span>
+
+      <span>
+        ${prettyNumber(
+          getDisplayTotalRuns()
+        )} 人次
+      </span>
+
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        第一集真實留牌率
+      </span>
+
+      <span>
+        ${getPassRateText()}
+      </span>
+
+    </div>
+
+
+    <div class="modal-section-title">
+      本局宮籍
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        本局生存排名
+      </span>
+
+      <span>
+        ${getRankText()}
+      </span>
+
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        已超越玩家
+      </span>
+
+      <span>
+        ${getBeatenText()}
+      </span>
+
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        個人最高總評
+      </span>
+
+      <span>
+        ${getPersonalBestText()}
+      </span>
+
+    </div>
+
+
+    <div class="modal-row">
+
+      <span>
+        本帳號輪迴
+      </span>
+
+      <span>
+        ${getRunNumberText()}
+      </span>
+
+    </div>
+
+
+    <div class="modal-note">
+      宮門熱度為每日展示指標，
+      留牌率與個人戰績依正式遊戲紀錄計算。
+    </div>
+
+  `;
+
+}
+
+/* =====================================================
+   首頁・秀女選拔即時統計
+   顯示位置：
+   首頁故事文字下方 / 秀女姓名上方
+
+   顯示：
+   1. 今日秀女選拔累積人數
+      = 今日展示加成 + 今日真實局數
+
+   2. 目前秀女選拔累積人數
+      = 每日展示加成累積 + 真實總局數
+
+   3. 第一集通過率
+      = 真實通過局數 ÷ 真實總局數
+      完全不計展示加成
+===================================================== */
+
+(function installHomeSelectionStats() {
+
+  if (
+    window.__homeSelectionStatsInstalled
+  ) {
+    return;
+  }
+
+  window.__homeSelectionStatsInstalled =
+    true;
+
+
+  /* ===================================================
+     展示統計開始日期
+  =================================================== */
+
+  const DISPLAY_START_DATE =
+    "2026-09-01";
+
+
+  /* ===================================================
+     台北日期 YYYY-MM-DD
+  =================================================== */
+
+  function getTaipeiDateKey() {
+
+    const parts =
+      new Intl.DateTimeFormat(
+        "en-CA",
+        {
+          timeZone:
+            "Asia/Taipei",
+
+          year:
+            "numeric",
+
+          month:
+            "2-digit",
+
+          day:
+            "2-digit"
+        }
+      )
+      .formatToParts(
+        new Date()
+      );
+
+
+    const year =
+      parts.find(
+        item =>
+          item.type === "year"
+      )?.value;
+
+
+    const month =
+      parts.find(
+        item =>
+          item.type === "month"
+      )?.value;
+
+
+    const day =
+      parts.find(
+        item =>
+          item.type === "day"
+      )?.value;
+
+
+    return (
+      year
+      +
+      "-"
+      +
+      month
+      +
+      "-"
+      +
+      day
+    );
+
+  }
+
+
+  /* ===================================================
+     固定 hash
+  =================================================== */
+
+  function homeStatsHash(
+    text
+  ) {
+
+    let hash =
+      2166136261;
+
+
+    for (
+      let i = 0;
+      i < text.length;
+      i++
+    ) {
+
+      hash ^=
+        text.charCodeAt(i);
+
+
+      hash =
+        Math.imul(
+          hash,
+          16777619
+        );
+
+    }
+
+
+    return (
+      hash >>> 0
+    );
+
+  }
+
+
+  /* ===================================================
+     每日展示加成
+     每天固定 300～999
+     同一天重新整理不會亂跳
+  =================================================== */
+
+  function getFakeCountForDate(
+    dateKey
+  ) {
+
+    const hash =
+      homeStatsHash(
+        "hougong-selection-"
+        +
+        dateKey
+      );
+
+
+    return (
+      300
+      +
+      (
+        hash % 700
+      )
+    );
+
+  }
+
+
+  /* ===================================================
+     日期轉 UTC
+  =================================================== */
+
+  function dateKeyToUTC(
+    dateKey
+  ) {
+
+    const parts =
+      String(
+        dateKey
+      )
+      .split("-")
+      .map(Number);
+
+
+    return new Date(
+      Date.UTC(
+        parts[0],
+        parts[1] - 1,
+        parts[2]
+      )
+    );
+
+  }
+
+
+  function utcToDateKey(
+    date
+  ) {
+
+    const year =
+      date
+        .getUTCFullYear();
+
+
+    const month =
+      String(
+        date
+          .getUTCMonth()
+        +
+        1
+      )
+      .padStart(
+        2,
+        "0"
+      );
+
+
+    const day =
+      String(
+        date
+          .getUTCDate()
+      )
+      .padStart(
+        2,
+        "0"
+      );
+
+
+    return (
+      year
+      +
+      "-"
+      +
+      month
+      +
+      "-"
+      +
+      day
+    );
+
+  }
+
+
+  /* ===================================================
+     累積每日展示加成
+  =================================================== */
+
+  function getCumulativeDisplayCount() {
+
+    const todayKey =
+      getTaipeiDateKey();
+
+
+    const start =
+      dateKeyToUTC(
+        DISPLAY_START_DATE
+      );
+
+
+    const end =
+      dateKeyToUTC(
+        todayKey
+      );
+
+
+    /*
+      防止日期異常
+    */
+
+    if (
+      end < start
+    ) {
+
+      return getFakeCountForDate(
+        todayKey
+      );
+
+    }
+
+
+    let total =
+      0;
+
+
+    const cursor =
+      new Date(
+        start.getTime()
+      );
+
+
+    while (
+      cursor <= end
+    ) {
+
+      const key =
+        utcToDateKey(
+          cursor
+        );
+
+
+      total +=
+        getFakeCountForDate(
+          key
+        );
+
+
+      cursor.setUTCDate(
+        cursor.getUTCDate()
+        +
+        1
+      );
+
+    }
+
+
+    return total;
+
+  }
+
+
+  /* ===================================================
+     數字格式
+  =================================================== */
+
+  function formatHomeCount(
+    value
+  ) {
+
+    const number =
+      Number(
+        value
+        ||
+        0
+      );
+
+
+    return Math.max(
+      0,
+      Math.floor(
+        number
+      )
+    )
+    .toLocaleString(
+      "zh-TW"
+    );
+
+  }
+
+
+  /* ===================================================
+     建立 CSS
+  =================================================== */
+
+  function ensureHomeStatsStyles() {
+
+    if (
+      document.getElementById(
+        "homeSelectionStatsStyles"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const style =
+      document.createElement(
+        "style"
+      );
+
+
+    style.id =
+      "homeSelectionStatsStyles";
+
+
+    style.textContent = `
+
+      .home-selection-stats{
+
+        position:relative;
+
+        display:grid;
+
+        grid-template-columns:
+          1fr 1fr 1fr;
+
+        margin:
+          14px 0 17px;
+
+        padding:
+          11px 4px 10px;
+
+        border-top:
+          1px solid
+          rgba(
+            218,
+            165,
+            75,
+            .24
+          );
+
+        border-bottom:
+          1px solid
+          rgba(
+            218,
+            165,
+            75,
+            .24
+          );
+
+        background:
+          linear-gradient(
+            90deg,
+            transparent,
+            rgba(
+              126,
+              63,
+              26,
+              .07
+            ),
+            transparent
+          );
+
+      }
+
+
+      .home-selection-stat{
+
+        min-width:0;
+
+        padding:
+          0 6px;
+
+        text-align:center;
+
+      }
+
+
+      .home-selection-stat
+      +
+      .home-selection-stat{
+
+        border-left:
+          1px solid
+          rgba(
+            218,
+            165,
+            75,
+            .16
+          );
+
+      }
+
+
+      .home-selection-stat-label{
+
+        min-height:28px;
+
+        display:flex;
+
+        align-items:center;
+        justify-content:center;
+
+        color:
+          rgba(
+            222,
+            183,
+            111,
+            .67
+          );
+
+        font-size:
+          9px;
+
+        line-height:
+          1.45;
+
+        letter-spacing:
+          .5px;
+
+      }
+
+
+      .home-selection-stat-value{
+
+        margin-top:
+          4px;
+
+        color:
+          #efc979;
+
+        font-size:
+          clamp(
+            17px,
+            4.8vw,
+            22px
+          );
+
+        line-height:
+          1;
+
+        font-weight:
+          600;
+
+        letter-spacing:
+          .5px;
+
+        text-shadow:
+          0 0 12px
+          rgba(
+            239,
+            201,
+            121,
+            .14
+          );
+
+      }
+
+
+      .home-selection-stat-unit{
+
+        margin-left:
+          2px;
+
+        color:
+          rgba(
+            239,
+            201,
+            121,
+            .58
+          );
+
+        font-size:
+          9px;
+
+        font-weight:
+          400;
+
+      }
+
+
+      .home-selection-stats-loading{
+
+        opacity:
+          .55;
+
+      }
+
+    `;
+
+
+    document.head.appendChild(
+      style
+    );
+
+  }
+
+
+  /* ===================================================
+     建立首頁三格
+  =================================================== */
+
+  function ensureHomeStatsPanel() {
+
+    ensureHomeStatsStyles();
+
+
+    let panel =
+      document.getElementById(
+        "homeSelectionStats"
+      );
+
+
+    if (panel) {
+
+      return panel;
+
+    }
+
+
+    const startScreen =
+      document.getElementById(
+        "startScreen"
+      );
+
+
+    if (!startScreen) {
+
+      return null;
+
+    }
+
+
+    const story =
+      startScreen.querySelector(
+        ".story"
+      );
+
+
+    const inputGroup =
+      startScreen.querySelector(
+        ".input-group"
+      );
+
+
+    if (
+      !story
+      ||
+      !inputGroup
+    ) {
+
+      return null;
+
+    }
+
+
+    panel =
+      document.createElement(
+        "div"
+      );
+
+
+    panel.id =
+      "homeSelectionStats";
+
+
+    panel.className =
+      "home-selection-stats home-selection-stats-loading";
+
+
+    panel.innerHTML = `
+
+      <div
+        class="home-selection-stat"
+      >
+
+        <div
+          class="home-selection-stat-label"
+        >
+          今日秀女選拔<br>
+          累積人數
+        </div>
+
+        <div
+          id="homeTodaySelectionCount"
+          class="home-selection-stat-value"
+        >
+          ---
+        </div>
+
+      </div>
+
+
+      <div
+        class="home-selection-stat"
+      >
+
+        <div
+          class="home-selection-stat-label"
+        >
+          目前秀女選拔<br>
+          累積人數
+        </div>
+
+        <div
+          id="homeTotalSelectionCount"
+          class="home-selection-stat-value"
+        >
+          ---
+        </div>
+
+      </div>
+
+
+      <div
+        class="home-selection-stat"
+      >
+
+        <div
+          class="home-selection-stat-label"
+        >
+          第一集<br>
+          通過率
+        </div>
+
+        <div
+          id="homeSelectionPassRate"
+          class="home-selection-stat-value"
+        >
+          ---
+        </div>
+
+      </div>
+
+    `;
+
+
+    inputGroup.parentNode.insertBefore(
+      panel,
+      inputGroup
+    );
+
+
+    return panel;
+
+  }
+
+
+  /* ===================================================
+     顯示資料
+  =================================================== */
+
+  function renderHomeStats(
+    stats
+  ) {
+
+    const panel =
+      ensureHomeStatsPanel();
+
+
+    if (!panel) {
+      return;
+    }
+
+
+    const realToday =
+      Number(
+        stats.todayRuns
+        ||
+        0
+      );
+
+
+    const realTotal =
+      Number(
+        stats.totalRuns
+        ||
+        0
+      );
+
+
+    const realPassed =
+      Number(
+        stats.passedRuns
+        ||
+        0
+      );
+
+
+    /*
+      第一個：
+      今日展示加成
+      +
+      今日真實人數
+    */
+
+    const todayDisplay =
+      getFakeCountForDate(
+        getTaipeiDateKey()
+      )
+      +
+      realToday;
+
+
+    /*
+      第二個：
+      每日展示加成累積
+      +
+      真實歷史總數
+    */
+
+    const totalDisplay =
+      getCumulativeDisplayCount()
+      +
+      realTotal;
+
+
+    /*
+      第三個：
+      只用真實資料
+    */
+
+    const passRate =
+      realTotal > 0
+
+      ?
+
+      (
+        Math.round(
+          (
+            realPassed
+            /
+            realTotal
+            *
+            100
+          )
+          *
+          10
+        )
+        /
+        10
+      )
+
+      :
+
+      0;
+
+
+    const todayElement =
+      document.getElementById(
+        "homeTodaySelectionCount"
+      );
+
+
+    const totalElement =
+      document.getElementById(
+        "homeTotalSelectionCount"
+      );
+
+
+    const passElement =
+      document.getElementById(
+        "homeSelectionPassRate"
+      );
+
+
+    if (todayElement) {
+
+      todayElement.innerHTML =
+
+        formatHomeCount(
+          todayDisplay
+        )
+
+        +
+
+        `<span
+          class="home-selection-stat-unit"
+        >人</span>`;
+
+    }
+
+
+    if (totalElement) {
+
+      totalElement.innerHTML =
+
+        formatHomeCount(
+          totalDisplay
+        )
+
+        +
+
+        `<span
+          class="home-selection-stat-unit"
+        >人</span>`;
+
+    }
+
+
+    if (passElement) {
+
+      passElement.textContent =
+        passRate
+        +
+        "%";
+
+    }
+
+
+    panel.classList.remove(
+      "home-selection-stats-loading"
+    );
+
+  }
+
+
+  /* ===================================================
+     Supabase 真實統計
+  =================================================== */
+
+  async function loadHomeSelectionStats() {
+
+    ensureHomeStatsPanel();
+
+
+    if (
+      !window.hougongSupabase
+    ) {
+
+      console.warn(
+        "首頁殿選統計：Supabase 尚未載入"
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await window
+          .hougongSupabase
+          .rpc(
+            "get_home_selection_stats"
+          );
+
+
+      if (error) {
+
+        console.error(
+          "首頁殿選統計讀取失敗：",
+          error
+        );
+
+        return;
+
+      }
+
+
+      const row =
+        Array.isArray(
+          data
+        )
+
+        ?
+
+        data[0]
+
+        :
+
+        data;
+
+
+      if (!row) {
+
+        return;
+
+      }
+
+
+      renderHomeStats({
+
+        todayRuns:
+          Number(
+            row.today_runs
+            ||
+            0
+          ),
+
+        totalRuns:
+          Number(
+            row.total_runs
+            ||
+            0
+          ),
+
+        passedRuns:
+          Number(
+            row.passed_runs
+            ||
+            0
+          )
+
+      });
+
+    }
+
+
+    catch (
+      error
+    ) {
+
+      console.error(
+        "首頁殿選統計發生錯誤：",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ===================================================
+     啟動
+  =================================================== */
+
+  function startHomeSelectionStats() {
+
+    ensureHomeStatsPanel();
+
+    loadHomeSelectionStats();
+
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    window.addEventListener(
+      "DOMContentLoaded",
+      startHomeSelectionStats
+    );
+
+  }
+
+  else {
+
+    startHomeSelectionStats();
+
+  }
+
+
+  window.loadHomeSelectionStats =
+    loadHomeSelectionStats;
+
+})();
+
+/* =====================================================
+   首頁第一集真實通過率修正版
+
+   passed_runs
+   ÷
+   completed_selection_runs
+
+   完全不計任何展示加成
+===================================================== */
+
+(function installRealSelectionPassRateFix() {
+
+  async function refreshRealSelectionPassRate() {
+
+    if (
+      !window.hougongSupabase
+    ) {
+      return;
+    }
+
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await window.hougongSupabase.rpc(
+          "get_home_selection_stats"
+        );
+
+
+      if (error) {
+
+        console.error(
+          "讀取第一集通過率失敗：",
+          error
+        );
+
+        return;
+
+      }
+
+
+      const row =
+        Array.isArray(data)
+        ?
+        data[0]
+        :
+        data;
+
+
+      if (!row) {
+        return;
+      }
+
+
+      const completed =
+        Number(
+          row.completed_selection_runs
+          ||
+          0
+        );
+
+
+      const passed =
+        Number(
+          row.passed_runs
+          ||
+          0
+        );
+
+
+      const rate =
+        completed > 0
+        ?
+        Math.round(
+          (
+            passed
+            /
+            completed
+            *
+            100
+          )
+          *
+          10
+        )
+        /
+        10
+        :
+        0;
+
+
+      const element =
+        document.getElementById(
+          "homeSelectionPassRate"
+        );
+
+
+      if (element) {
+
+        element.textContent =
+          rate.toFixed(1)
+          +
+          "%";
+
+      }
+
+    }
+
+
+    catch (error) {
+
+      console.error(
+        "第一集通過率計算失敗：",
+        error
+      );
+
+    }
+
+  }
+
+
+  function startRealPassRateFix() {
+
+    /*
+      稍微晚一點執行，
+      確保首頁三格已經建立完成
+    */
+
+    setTimeout(
+      refreshRealSelectionPassRate,
+      300
+    );
+
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      startRealPassRateFix
+    );
+
+  }
+
+  else {
+
+    startRealPassRateFix();
+
+  }
+
+
+  window.refreshRealSelectionPassRate =
+    refreshRealSelectionPassRate;
+
+})();

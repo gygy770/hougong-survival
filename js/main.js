@@ -4478,3 +4478,98 @@ window.addEventListener(
     createCharacter;
 
 })();
+
+/* =====================================================
+   正式版・關閉開發測試入口
+
+   功能：
+   1. 移除右下角「測試」按鈕
+   2. 移除開發測試面板
+   3. 正式站停用 devJump
+   4. 保留原始開發程式，不需要刪除
+===================================================== */
+
+(function disableProductionDevTools() {
+
+  function removeDevInterface() {
+
+    const devButton =
+      document.querySelector(
+        ".dev-button"
+      );
+
+
+    if (devButton) {
+
+      devButton.remove();
+
+    }
+
+
+    const devPanel =
+      document.getElementById(
+        "devPanel"
+      );
+
+
+    if (devPanel) {
+
+      devPanel.remove();
+
+    }
+
+  }
+
+
+  function disableDevFunctions() {
+
+    window.toggleDevPanel =
+      function () {
+
+        console.warn(
+          "正式版已關閉測試工具"
+        );
+
+      };
+
+
+    window.devJump =
+      function () {
+
+        console.warn(
+          "正式版已關閉跳關功能"
+        );
+
+      };
+
+  }
+
+
+  function startProductionMode() {
+
+    removeDevInterface();
+
+    disableDevFunctions();
+
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      startProductionMode
+    );
+
+  }
+
+  else {
+
+    startProductionMode();
+
+  }
+
+})();
