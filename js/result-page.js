@@ -7315,3 +7315,465 @@ window.syncEpisodeResultToBackend =
   );
 
 })();
+
+/* =====================================================
+   第二集正式結算接線
+
+   功能：
+   1. 移除「下一步：第二集結尾與結算」假 alert
+   2. 熄燈歇息 → 正式第二集結算頁
+   3. 自動接排行榜 / Supabase / 銀兩戰績
+   4. 結算後進入第三集
+   5. 支援 F5
+===================================================== */
+
+(function installEpisodeTwoOfficialEnding() {
+
+  if (
+    window.__episodeTwoOfficialEndingInstalled
+  ) {
+    return;
+  }
+
+
+  window.__episodeTwoOfficialEndingInstalled =
+    true;
+
+
+  /* ===================================================
+     第一夜路線中文
+  =================================================== */
+
+  function getEpisodeTwoRouteLabel() {
+
+    const route =
+      gameState.episodeTwoNightRoute
+      ||
+      "observe";
+
+
+    const labels = {
+
+      hairpin:
+        "追查失蹤金簪",
+
+      shen:
+        "赴沈知意之約",
+
+      xiaoshunzi:
+        "向小順子探聽消息",
+
+      observe:
+        "按兵不動，暗中觀察"
+
+    };
+
+
+    return (
+      labels[route]
+      ||
+      "度過入宮第一夜"
+    );
+
+  }
+
+
+  /* ===================================================
+     第二集關鍵選擇
+  =================================================== */
+
+  function getEpisodeTwoKeyChoices() {
+
+    const choices = [];
+
+
+    const routeLabel =
+      getEpisodeTwoRouteLabel();
+
+
+    choices.push(
+      "第一夜：" + routeLabel
+    );
+
+
+    if (
+      gameState.storyFlags
+      &&
+      gameState.storyFlags
+        .xiaoshunzi_paid
+    ) {
+
+      choices.push(
+        "用五兩銀子向小順子買消息"
+      );
+
+    }
+
+
+    if (
+      gameState.storyFlags
+      &&
+      gameState.storyFlags
+        .xiaoshunzi_favor_debt
+    ) {
+
+      choices.push(
+        "欠下小順子一個人情"
+      );
+
+    }
+
+
+    if (
+      gameState.storyFlags
+      &&
+      gameState.storyFlags
+        .xiaoshunzi_night_watch
+    ) {
+
+      choices.push(
+        "追問承露宮夜間值守"
+      );
+
+    }
+
+
+    if (
+      gameState.storyFlags
+      &&
+      gameState.storyFlags
+        .ep2_shen_answer_probe
+    ) {
+
+      choices.push(
+        "反問沈知意為何如此關心"
+      );
+
+    }
+
+
+    if (
+      gameState.storyFlags
+      &&
+      gameState.storyFlags
+        .ep2_shen_answer_silent
+    ) {
+
+      choices.push(
+        "沒有回答沈知意的試探"
+      );
+
+    }
+
+
+    return choices;
+
+  }
+
+
+  /* ===================================================
+     正式顯示第二集結果頁
+  =================================================== */
+
+  function showEpisodeTwoOfficialResult() {
+
+    if (
+      typeof gameState ===
+        "undefined"
+      ||
+      !gameState
+    ) {
+
+      console.error(
+        "第二集結算：找不到 gameState"
+      );
+
+      return;
+    }
+
+
+    if (
+      typeof window.showEpisodeResult !==
+        "function"
+    ) {
+
+      console.error(
+        "第二集結算：找不到 showEpisodeResult()"
+      );
+
+      alert(
+        "結算系統尚未載入，請重新整理後再試。"
+      );
+
+      return;
+    }
+
+
+    gameState.status =
+      "alive";
+
+
+    gameState.currentEpisode =
+      2;
+
+
+    gameState.storyStep =
+      "ep2_completed";
+
+
+    if (
+      typeof setStoryFlag ===
+      "function"
+    ) {
+
+      setStoryFlag(
+        "episode2_completed",
+        true
+      );
+
+    }
+
+
+    if (
+      typeof saveGame ===
+      "function"
+    ) {
+
+      saveGame();
+
+    }
+
+
+    const routeLabel =
+      getEpisodeTwoRouteLabel();
+
+
+    window.showEpisodeResult({
+
+      episodeNumber:
+        2,
+
+      episodeTitle:
+        "初入宮門",
+
+      statusLabel:
+        "第一夜結束",
+
+      title:
+        "夜 闌",
+
+      survived:
+        true,
+
+      terminal:
+        false,
+
+      image:
+        "images/scene-ep02-11-ending.png",
+
+      imageAlt:
+        "第二集結算",
+
+      imagePosition:
+        "center center",
+
+      survivalTitle:
+        "你目前活到第 2 集",
+
+      survivalSub:
+        "故事仍在繼續",
+
+      score:
+        null,
+
+      summary:
+        `
+          你平安度過了入宮的第一夜。
+          <br><br>
+          但在這座宮城裡，
+          一句話、一件失物，
+          甚至一次沒有赴約，
+          都可能在日後留下痕跡。
+        `,
+
+      detailRows: [
+
+        {
+          label:
+            "目前位分",
+
+          value:
+            playerData.rank
+            ||
+            "答應"
+        },
+
+        {
+          label:
+            "居所",
+
+          value:
+            gameState.palaceResidence
+            ||
+            "承露宮"
+        },
+
+        {
+          label:
+            "第一夜選擇",
+
+          value:
+            routeLabel
+        },
+
+        {
+          label:
+            "目前銀兩",
+
+          value:
+            Number(
+              playerData.money
+              ||
+              0
+            )
+            +
+            " 兩"
+        },
+
+        {
+          label:
+            "警覺",
+
+          value:
+            Number(
+              playerData.alert
+              ||
+              0
+            )
+        },
+
+        {
+          label:
+            "禮儀",
+
+          value:
+            Number(
+              playerData.etiquette
+              ||
+              0
+            )
+        }
+
+      ],
+
+      keyChoices:
+        getEpisodeTwoKeyChoices(),
+
+      rewards:
+        [],
+
+      continueText:
+        "進入第三集",
+
+      continueAction:
+        "enterEpisodeThree",
+
+      rankingTitle:
+        "第二集・初入宮門排行",
+
+      shareLine:
+        "我平安度過了入宮第一夜。",
+
+      screenState:
+        "episodeResult"
+
+    });
+
+  }
+
+
+  /* ===================================================
+     攔截目前 finishEpisodeTwoNight
+
+     保留你原本：
+     - 劇情文字
+     - 背景圖片
+     - F5 存檔
+     - 路線紀錄
+
+     只把最後那個假 alert
+     換成真正第二集結算。
+  =================================================== */
+
+  if (
+    typeof finishEpisodeTwoNight ===
+    "function"
+  ) {
+
+    const previousFinishEpisodeTwoNight =
+      finishEpisodeTwoNight;
+
+
+    finishEpisodeTwoNight =
+      function (
+        route,
+        resultText
+      ) {
+
+        gameState.episodeTwoNightRoute =
+          route;
+
+
+        gameState.episodeTwoNightResultText =
+          resultText;
+
+
+        const result =
+          previousFinishEpisodeTwoNight
+            .apply(
+              this,
+              arguments
+            );
+
+
+        /*
+          renderStoryScene 原本把
+          「下一步：第二集結尾與結算」
+          那個 alert 存在這裡。
+
+          現在直接換掉。
+        */
+
+        window.__storyNextAction =
+          showEpisodeTwoOfficialResult;
+
+
+        if (
+          typeof saveGame ===
+          "function"
+        ) {
+
+          saveGame();
+
+        }
+
+
+        return result;
+
+      };
+
+
+    window.finishEpisodeTwoNight =
+      finishEpisodeTwoNight;
+
+  }
+
+
+  /* ===================================================
+     對外提供
+  =================================================== */
+
+  window.showEpisodeTwoOfficialResult =
+    showEpisodeTwoOfficialResult;
+
+})();

@@ -3457,3 +3457,698 @@ window.getEpisodeTwoRouteLabel =
 
 window.getEpisodeTwoKeyChoice =
   getEpisodeTwoKeyChoice;
+
+  /* =====================================================
+   第二集・第一夜收尾背景修正
+
+   修正「夜深」結算畫面沒有背景圖片
+===================================================== */
+
+(function fixEpisodeTwoNightEndingImage() {
+
+  if (
+    window.__episodeTwoNightEndingImageFixed
+  ) {
+    return;
+  }
+
+  window.__episodeTwoNightEndingImageFixed =
+    true;
+
+
+  finishEpisodeTwoNight =
+    function (
+      route,
+      resultText
+    ) {
+
+      gameState.episodeTwoNightRoute =
+        route;
+
+
+      setStoryFlag(
+        "episode2_first_night_done",
+        true
+      );
+
+
+      setStoryProgress(
+        2,
+        "ep2_first_night_end"
+      );
+
+
+      renderStoryScene({
+
+        episode:
+          "第二集・初入宮門",
+
+        location:
+          gameState.palaceResidence,
+
+        title:
+          "夜深",
+
+        image:
+          "images/scene-ep02-06-first-night.png",
+
+        imagePosition:
+          "center center",
+
+        content: `
+
+          ${resultText}
+
+          <br><br>
+
+          夜越來越深。
+
+          <br><br>
+
+          承露宮重新安靜下來。
+
+          <br><br>
+
+          今日才是你入宮的第一天。
+
+          <br><br>
+
+          可你已經明白，
+          宮裡很多事情，
+
+          <strong>
+            不會有人把答案直接告訴你。
+          </strong>
+
+          <br><br>
+
+          有些選擇究竟是對是錯，
+          恐怕要過很久以後才會知道。
+
+        `,
+
+        nextText:
+          "熄 燈 歇 息",
+
+        nextAction:
+          function () {
+
+            alert(
+              "下一步：第二集結尾與結算"
+            );
+
+          }
+
+      });
+
+    };
+
+
+  window.finishEpisodeTwoNight =
+    finishEpisodeTwoNight;
+
+})();
+
+/* =====================================================
+   第二集完整 F5 進度恢復
+
+   功能：
+   1. 正式遊戲第二集按 F5 不回開局
+   2. 回到原本幕次
+   3. 保存沈知意對話分支
+   4. 保存第一夜最後選擇文字
+   5. 不重複發放數值效果
+===================================================== */
+
+(function installEpisodeTwoFullResume() {
+
+  if (
+    window.__episodeTwoFullResumeInstalled
+  ) {
+    return;
+  }
+
+  window.__episodeTwoFullResumeInstalled =
+    true;
+
+
+  /* ===================================================
+     安全讀取故事旗標
+  =================================================== */
+
+  function ep2ResumeFlag(
+    key
+  ) {
+
+    if (
+      typeof getStoryFlag ===
+      "function"
+    ) {
+
+      return !!getStoryFlag(
+        key
+      );
+
+    }
+
+
+    return !!(
+      gameState
+      &&
+      gameState.storyFlags
+      &&
+      gameState.storyFlags[key]
+    );
+
+  }
+
+
+  /* ===================================================
+     保存沈知意對話是哪一條
+
+     原本這一幕沒有獨立保存 storyStep，
+     這裡補上。
+  =================================================== */
+
+  if (
+    typeof renderEpisodeTwoShenResponse ===
+    "function"
+  ) {
+
+    const originalShenResponse =
+      renderEpisodeTwoShenResponse;
+
+
+    renderEpisodeTwoShenResponse =
+      function (
+        type
+      ) {
+
+        gameState.screen =
+          "episode2";
+
+
+        gameState.currentEpisode =
+          2;
+
+
+        gameState.episodeTwoShenResponseType =
+          type;
+
+
+        if (
+          typeof setStoryProgress ===
+          "function"
+        ) {
+
+          setStoryProgress(
+            2,
+            "ep2_shen_response"
+          );
+
+        }
+
+
+        return originalShenResponse(
+          type
+        );
+
+      };
+
+
+    window.renderEpisodeTwoShenResponse =
+      renderEpisodeTwoShenResponse;
+
+  }
+
+
+  /* ===================================================
+     保存第一夜收尾文字
+
+     finishEpisodeTwoNight 原本只有保存 route，
+     F5 後無法知道最後那段文字是什麼。
+  =================================================== */
+
+  if (
+    typeof finishEpisodeTwoNight ===
+    "function"
+  ) {
+
+    const originalFinishEpisodeTwoNight =
+      finishEpisodeTwoNight;
+
+
+    finishEpisodeTwoNight =
+      function (
+        route,
+        resultText
+      ) {
+
+        gameState.screen =
+          "episode2";
+
+
+        gameState.currentEpisode =
+          2;
+
+
+        gameState.episodeTwoNightRoute =
+          route;
+
+
+        gameState.episodeTwoNightResultText =
+          resultText;
+
+
+        if (
+          typeof saveGame ===
+          "function"
+        ) {
+
+          saveGame();
+
+        }
+
+
+        return originalFinishEpisodeTwoNight(
+          route,
+          resultText
+        );
+
+      };
+
+
+    window.finishEpisodeTwoNight =
+      finishEpisodeTwoNight;
+
+  }
+
+
+  /* ===================================================
+     取得寧嬪第一次回答
+  =================================================== */
+
+  function getSavedNingPinFirstChoice() {
+
+    if (
+      ep2ResumeFlag(
+        "ep2_first_answer_quiet"
+      )
+    ) {
+
+      return "quiet";
+
+    }
+
+
+    if (
+      ep2ResumeFlag(
+        "ep2_first_answer_observe"
+      )
+    ) {
+
+      return "observe";
+
+    }
+
+
+    return "sharp";
+
+  }
+
+
+  /* ===================================================
+     取得寧嬪第二次回答
+  =================================================== */
+
+  function getSavedNingPinSecondChoice() {
+
+    if (
+      ep2ResumeFlag(
+        "ep2_kindness_accept"
+      )
+    ) {
+
+      return "accept";
+
+    }
+
+
+    if (
+      ep2ResumeFlag(
+        "ep2_kindness_debt"
+      )
+    ) {
+
+      return "debt";
+
+    }
+
+
+    return "suspicious";
+
+  }
+
+
+  /* ===================================================
+     取得沈知意回答
+  =================================================== */
+
+  function getSavedShenResponse() {
+
+    if (
+      gameState
+      &&
+      gameState
+        .episodeTwoShenResponseType
+    ) {
+
+      return gameState
+        .episodeTwoShenResponseType;
+
+    }
+
+
+    if (
+      ep2ResumeFlag(
+        "ep2_shen_answer_vague"
+      )
+    ) {
+
+      return "vague";
+
+    }
+
+
+    if (
+      ep2ResumeFlag(
+        "ep2_shen_answer_probe"
+      )
+    ) {
+
+      return "probe";
+
+    }
+
+
+    if (
+      ep2ResumeFlag(
+        "ep2_shen_answer_silent"
+      )
+    ) {
+
+      return "silent";
+
+    }
+
+
+    return null;
+
+  }
+
+
+  /* ===================================================
+     第一夜舊存檔沒有 resultText 時的保險文字
+
+     新存檔之後都會保存完整原文。
+  =================================================== */
+
+  function getNightEndingText() {
+
+    if (
+      gameState
+      &&
+      gameState
+        .episodeTwoNightResultText
+    ) {
+
+      return gameState
+        .episodeTwoNightResultText;
+
+    }
+
+
+    return `
+      你已經做出了今晚的選擇。
+      <br><br>
+      有些事情看似已經結束，
+      可真正的結果，或許還在後面。
+    `;
+
+  }
+
+
+  /* ===================================================
+     正式恢復第二集
+  =================================================== */
+
+  function restoreEpisodeTwoProgress() {
+
+    if (
+      typeof gameState ===
+        "undefined"
+      ||
+      !gameState
+      ||
+      gameState.screen !==
+        "episode2"
+    ) {
+
+      return false;
+
+    }
+
+
+    const step =
+      gameState.storyStep
+      ||
+      "ep2_opening";
+
+
+    gameState.screen =
+      "episode2";
+
+
+    gameState.currentEpisode =
+      2;
+
+
+    console.log(
+      "恢復第二集進度：",
+      step
+    );
+
+
+    switch (
+      step
+    ) {
+
+
+      case "ep2_opening":
+
+        renderEpisodeTwoOpening();
+
+        return true;
+
+
+      case "ep2_palace_road":
+
+        renderEpisodeTwoPalaceRoad();
+
+        return true;
+
+
+      case "ep2_arrival":
+
+        renderEpisodeTwoArrival();
+
+        return true;
+
+
+      case "ep2_ningpin":
+
+        renderEpisodeTwoNingPinEntrance();
+
+        return true;
+
+
+      case "ep2_ningpin_first_test":
+
+        renderEpisodeTwoNingPinChoice();
+
+        return true;
+
+
+      case "ep2_ningpin_second_test":
+
+        renderEpisodeTwoNingPinSecondTest(
+          getSavedNingPinFirstChoice()
+        );
+
+        return true;
+
+
+      case "ep2_ningpin_final":
+
+        renderEpisodeTwoNingPinFinal(
+          getSavedNingPinSecondChoice()
+        );
+
+        return true;
+
+
+      case "ep2_meet_shen": {
+
+        const shenType =
+          getSavedShenResponse();
+
+
+        if (
+          shenType
+        ) {
+
+          renderEpisodeTwoShenResponse(
+            shenType
+          );
+
+        }
+
+        else {
+
+          renderEpisodeTwoMeetShen();
+
+        }
+
+
+        return true;
+
+      }
+
+
+      case "ep2_shen_response":
+
+        renderEpisodeTwoShenResponse(
+          getSavedShenResponse()
+          ||
+          "silent"
+        );
+
+        return true;
+
+
+      case "ep2_first_night":
+
+        renderEpisodeTwoFirstNight();
+
+        return true;
+
+
+      case "ep2_hairpin":
+
+        renderEpisodeTwoHairpin();
+
+        return true;
+
+
+      case "ep2_shen_night":
+
+        renderEpisodeTwoShenNight();
+
+        return true;
+
+
+      case "ep2_xiaoshunzi":
+
+        renderEpisodeTwoXiaoShunzi();
+
+        return true;
+
+
+      case "ep2_observe_night":
+
+        renderEpisodeTwoObserveNight();
+
+        return true;
+
+
+      case "ep2_first_night_end":
+
+        finishEpisodeTwoNight(
+          gameState
+            .episodeTwoNightRoute
+          ||
+          "observe",
+
+          getNightEndingText()
+        );
+
+        return true;
+
+
+      default:
+
+        console.warn(
+          "第二集找不到幕次：",
+          step
+        );
+
+
+        renderEpisodeTwoOpening();
+
+        return true;
+
+    }
+
+  }
+
+
+  /* ===================================================
+     F5 後 main.js 會先 loadGame()
+
+     main.js 不認識 episode2，
+     所以會暫時顯示 startScreen。
+
+     我們稍後立刻接管並恢復第二集。
+  =================================================== */
+
+  function resumeEpisodeTwoAfterLoad() {
+
+    setTimeout(
+      function () {
+
+        restoreEpisodeTwoProgress();
+
+      },
+      80
+    );
+
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    window.addEventListener(
+      "DOMContentLoaded",
+      resumeEpisodeTwoAfterLoad
+    );
+
+  }
+
+  else {
+
+    resumeEpisodeTwoAfterLoad();
+
+  }
+
+
+  /* ===================================================
+     提供 Console 測試
+  =================================================== */
+
+  window.restoreEpisodeTwoProgress =
+    restoreEpisodeTwoProgress;
+
+})();
