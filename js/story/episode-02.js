@@ -3056,3 +3056,404 @@ window.renderEpisodeTwoFirstNight =
 
 window.renderEpisodeTwoEnding =
   renderEpisodeTwoEnding;
+
+/* =====================================================
+   第二集・正式結算系統
+   接入全遊戲共用 result-page.js
+===================================================== */
+
+
+/* =====================================================
+   第二集夜間路線名稱
+===================================================== */
+
+function getEpisodeTwoRouteLabel(
+  route
+) {
+
+  const map = {
+
+    hairpin:
+      "追查失蹤金簪",
+
+    shen:
+      "深夜赴約",
+
+    xiaoshunzi:
+      "打聽承露宮",
+
+    observe:
+      "按兵不動"
+
+  };
+
+
+  return (
+    map[route]
+    ||
+    "宮中第一夜"
+  );
+
+}
+
+
+/* =====================================================
+   第二集關鍵選擇文字
+===================================================== */
+
+function getEpisodeTwoKeyChoice(
+  route
+) {
+
+  const map = {
+
+    hairpin:
+      "你選擇先追查不見的赤金點翠簪。",
+
+    shen:
+      "你依約前往後院，與沈知意見面。",
+
+    xiaoshunzi:
+      "你留下小順子，打聽承露宮裡的消息。",
+
+    observe:
+      "你沒有急著出手，而是留在房中觀察夜間動靜。"
+
+  };
+
+
+  return (
+    map[route]
+    ||
+    "你度過了入宮後的第一夜。"
+  );
+
+}
+
+
+/* =====================================================
+   第二集結算摘要
+===================================================== */
+
+function getEpisodeTwoResultSummary(
+  route
+) {
+
+  const map = {
+
+    hairpin:
+      "一支消失的金簪，讓你第一次察覺宮裡的賞賜未必只是賞賜。",
+
+    shen:
+      "沈知意主動向你伸出了手，但她真正想要的是盟友，還是棋子，你仍不知道。",
+
+    xiaoshunzi:
+      "宮裡的消息從來不是免費的。你已經開始建立自己的耳目。",
+
+    observe:
+      "你沒有貿然行動，卻在寂靜的夜裡察覺了承露宮並沒有表面上那麼平靜。"
+
+  };
+
+
+  return (
+    map[route]
+    ||
+    "你度過了入宮第一日，也真正踏進了後宮的暗流。"
+  );
+
+}
+
+
+/* =====================================================
+   顯示第二集結算
+===================================================== */
+
+function showEpisodeTwoResult() {
+
+  const route =
+
+    gameState.episodeTwoNightRoute
+    ||
+    "observe";
+
+
+  const routeLabel =
+
+    getEpisodeTwoRouteLabel(
+      route
+    );
+
+
+  gameState.episodeTwoCompleted =
+    true;
+
+
+  if (
+    typeof setStoryFlag ===
+    "function"
+  ) {
+
+    setStoryFlag(
+      "episode2_completed",
+      true
+    );
+
+  }
+
+
+  if (
+    typeof saveGame ===
+    "function"
+  ) {
+
+    saveGame();
+
+  }
+
+
+  showEpisodeResult({
+
+    episodeNumber:
+      2,
+
+    episodeTitle:
+      "初入宮門",
+
+    statusLabel:
+      "本集完成",
+
+    title:
+      routeLabel,
+
+    survived:
+      true,
+
+    terminal:
+      false,
+
+    image:
+      "images/scene-ep02-11-ending.png",
+
+    imagePosition:
+      "center center",
+
+    survivalTitle:
+      "你目前活到第 2 集",
+
+    survivalSub:
+      "故事仍在繼續",
+
+    /*
+      第二集目前沒有獨立分數制，
+      所以不亂塞一個假分數。
+    */
+
+    score:
+      null,
+
+    summary:
+
+      getEpisodeTwoResultSummary(
+        route
+      ),
+
+    detailRows: [
+
+      {
+        label:
+          "目前位分",
+
+        value:
+          playerData.rank
+          ||
+          "答應"
+      },
+
+      {
+        label:
+          "居所",
+
+        value:
+          gameState.palaceResidence
+          ||
+          "承露宮"
+      },
+
+      {
+        label:
+          "第一夜路線",
+
+        value:
+          routeLabel
+      },
+
+      {
+        label:
+          "警覺",
+
+        value:
+          Number(
+            playerData.alert
+            ||
+            0
+          )
+      },
+
+      {
+        label:
+          "禮儀",
+
+        value:
+          Number(
+            playerData.etiquette
+            ||
+            0
+          )
+      },
+
+      {
+        label:
+          "銀兩",
+
+        value:
+          Number(
+            playerData.money
+            ||
+            0
+          )
+          +
+          " 兩"
+      }
+
+    ],
+
+    keyChoices: [
+
+      getEpisodeTwoKeyChoice(
+        route
+      )
+
+    ],
+
+    rewards:
+      [],
+
+    continueText:
+      "進入第三集",
+
+    continueAction:
+      "startEpisodeThree",
+
+    rankingTitle:
+      "第二集・初入宮門排行",
+
+    shareLine:
+      `我的第一夜選擇：${routeLabel}`
+
+  });
+
+}
+
+
+/* =====================================================
+   覆蓋原本第二集第一夜收尾
+
+   原本：
+   熄燈 → alert
+
+   現在：
+   熄燈 → 第二集結尾 → 結算頁
+===================================================== */
+
+function finishEpisodeTwoNight(
+  route,
+  resultText
+) {
+
+  gameState.episodeTwoNightRoute =
+    route;
+
+
+  setStoryFlag(
+    "episode2_first_night_done",
+    true
+  );
+
+
+  setStoryProgress(
+    2,
+    "ep2_first_night_end"
+  );
+
+
+  renderStoryScene({
+
+    episode:
+      "第二集・初入宮門",
+
+    location:
+      gameState.palaceResidence,
+
+    title:
+      "夜深",
+
+    content: `
+
+      ${resultText}
+
+      <br><br>
+
+      夜越來越深。
+
+      <br><br>
+
+      承露宮重新安靜下來。
+
+      <br><br>
+
+      今日才是你入宮的第一天。
+
+      <br><br>
+
+      可你已經明白，
+
+      宮裡很多事情，
+
+      <strong>
+        不會有人把答案直接告訴你。
+      </strong>
+
+      <br><br>
+
+      有些選擇究竟是對是錯，
+
+      恐怕要過很久以後才會知道。
+
+    `,
+
+    nextText:
+      "查看本集戰績",
+
+    nextAction:
+      showEpisodeTwoResult
+
+  });
+
+}
+
+
+/* =====================================================
+   對外提供
+===================================================== */
+
+window.showEpisodeTwoResult =
+  showEpisodeTwoResult;
+
+
+window.getEpisodeTwoRouteLabel =
+  getEpisodeTwoRouteLabel;
+
+
+window.getEpisodeTwoKeyChoice =
+  getEpisodeTwoKeyChoice;

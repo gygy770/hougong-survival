@@ -6,6 +6,40 @@
 
 
 /* =====================================================
+   固定角色立繪
+===================================================== */
+
+const STORY_CHARACTER_PORTRAITS = {
+
+  "青禾": {
+    image: "images/npc-qinghe-01.png",
+    position: "right"
+  },
+
+  "寧嬪・蘇婉容": {
+    image: "images/npc-ningpin-01.png",
+    position: "center"
+  },
+
+  "寧嬪": {
+    image: "images/npc-ningpin-01.png",
+    position: "center"
+  },
+
+  "沈知意": {
+    image: "images/npc-shen-zhiyi-01.png",
+    position: "left"
+  },
+
+  "小順子": {
+    image: "images/npc-xiaoshunzi-01.png",
+    position: "right"
+  }
+
+};
+
+
+/* =====================================================
    建立共用劇情樣式
 ===================================================== */
 
@@ -26,7 +60,6 @@ function ensureStoryEngineStyles() {
       "style"
     );
 
-
   style.id =
     "storyEngineStyles";
 
@@ -38,7 +71,11 @@ function ensureStoryEngineStyles() {
     ================================================ */
 
     #storyScreen{
-      position:relative !important;
+      position:absolute !important;
+
+      inset:0 !important;
+
+      z-index:50 !important;
 
       width:100% !important;
 
@@ -72,14 +109,15 @@ function ensureStoryEngineStyles() {
       background-color:#160408;
 
       background-size:cover;
+
       background-repeat:no-repeat;
+
       background-position:center center;
     }
 
 
     /* ================================================
        場景暗角
-       讓文字比較容易閱讀
     ================================================ */
 
     .story-rpg-overlay{
@@ -87,24 +125,92 @@ function ensureStoryEngineStyles() {
 
       inset:0;
 
+      z-index:1;
+
       pointer-events:none;
 
       background:
         linear-gradient(
           to bottom,
 
-          rgba(13,2,5,.20) 0%,
+          rgba(13,2,5,.18) 0%,
 
-          rgba(13,2,5,.04) 20%,
+          rgba(13,2,5,.02) 28%,
 
-          rgba(13,2,5,.02) 48%,
+          rgba(13,2,5,.02) 52%,
 
-          rgba(13,2,5,.24) 65%,
+          rgba(13,2,5,.18) 66%,
 
-          rgba(13,2,5,.72) 100%
+          rgba(13,2,5,.74) 100%
         );
+    }
 
-      z-index:1;
+
+    /* ================================================
+       人物立繪
+    ================================================ */
+
+    .story-rpg-character{
+      position:absolute;
+
+      z-index:2;
+
+      bottom:14%;
+
+      height:69%;
+
+      max-width:82%;
+
+      display:flex;
+
+      align-items:flex-end;
+
+      justify-content:center;
+
+      pointer-events:none;
+
+      filter:
+        drop-shadow(
+          0 12px 18px
+          rgba(0,0,0,.42)
+        );
+    }
+
+
+    .story-rpg-character img{
+      display:block;
+
+      width:auto;
+
+      height:100%;
+
+      max-width:100%;
+
+      object-fit:contain;
+
+      object-position:center bottom;
+
+      user-select:none;
+
+      -webkit-user-drag:none;
+    }
+
+
+    .story-rpg-character-right{
+      right:-5%;
+    }
+
+
+    .story-rpg-character-left{
+      left:-5%;
+    }
+
+
+    .story-rpg-character-center{
+      left:50%;
+
+      transform:
+        translateX(-50%);
     }
 
 
@@ -202,7 +308,7 @@ function ensureStoryEngineStyles() {
 
 
     /* ================================================
-       NPC 名牌
+       說話者名字
     ================================================ */
 
     .story-rpg-speaker{
@@ -256,7 +362,7 @@ function ensureStoryEngineStyles() {
       border-radius:13px;
 
       background:
-        rgba(28,2,8,.82);
+        rgba(28,2,8,.84);
 
       box-shadow:
         0 8px 30px
@@ -274,10 +380,6 @@ function ensureStoryEngineStyles() {
       overflow:hidden;
     }
 
-
-    /* ================================================
-       劇情文字
-    ================================================ */
 
     .story-rpg-content{
       max-height:25dvh;
@@ -325,8 +427,7 @@ function ensureStoryEngineStyles() {
 
 
     /* ================================================
-       舊版劇情內容內使用的 NPC 名牌
-       仍然支援
+       舊版相容
     ================================================ */
 
     .story-speaker{
@@ -355,10 +456,6 @@ function ensureStoryEngineStyles() {
     }
 
 
-    /* ================================================
-       舊版故事提示框仍然支援
-    ================================================ */
-
     .story-effect{
       margin-top:11px;
 
@@ -381,7 +478,7 @@ function ensureStoryEngineStyles() {
 
 
     /* ================================================
-       選項 / 下一步
+       選項區
     ================================================ */
 
     .story-rpg-actions{
@@ -439,6 +536,10 @@ function ensureStoryEngineStyles() {
     }
 
 
+    /* ================================================
+       下一步
+    ================================================ */
+
     .story-next{
       width:100%;
 
@@ -480,7 +581,7 @@ function ensureStoryEngineStyles() {
 
 
     /* ================================================
-       沒圖片時的背景
+       無背景
     ================================================ */
 
     .story-rpg-scene.no-image{
@@ -494,7 +595,7 @@ function ensureStoryEngineStyles() {
 
 
     /* ================================================
-       iPhone / 手機
+       手機
     ================================================ */
 
     @media(max-width:480px){
@@ -502,6 +603,25 @@ function ensureStoryEngineStyles() {
       .story-rpg-scene{
         background-position:
           center center;
+      }
+
+
+      .story-rpg-character{
+        bottom:15%;
+
+        height:66%;
+
+        max-width:85%;
+      }
+
+
+      .story-rpg-character-right{
+        right:-8%;
+      }
+
+
+      .story-rpg-character-left{
+        left:-8%;
       }
 
 
@@ -592,6 +712,13 @@ function ensureStoryEngineStyles() {
 
     @media(max-height:720px){
 
+      .story-rpg-character{
+        bottom:17%;
+
+        height:61%;
+      }
+
+
       .story-rpg-content{
         max-height:20dvh;
 
@@ -646,9 +773,7 @@ function ensureStoryScreen() {
 
 
   if (screen) {
-
     return screen;
-
   }
 
 
@@ -660,6 +785,7 @@ function ensureStoryScreen() {
 
   screen.id =
     "storyScreen";
+
 
   screen.className =
     "screen";
@@ -694,11 +820,6 @@ function ensureStoryScreen() {
 
 /* =====================================================
    選項隨機排列
-
-   預設每次顯示場景時都重新洗牌。
-   若某一幕需要固定順序，在 renderStoryScene 傳入：
-
-   shuffle: false
 ===================================================== */
 
 function shuffleStoryChoices(
@@ -707,8 +828,8 @@ function shuffleStoryChoices(
 
   const list =
     Array.isArray(choices)
-    ? [...choices]
-    : [];
+      ? [...choices]
+      : [];
 
 
   for (
@@ -728,8 +849,10 @@ function shuffleStoryChoices(
     const temp =
       list[i];
 
+
     list[i] =
       list[j];
+
 
     list[j] =
       temp;
@@ -738,6 +861,74 @@ function shuffleStoryChoices(
 
 
   return list;
+
+}
+
+
+/* =====================================================
+   取得角色立繪
+
+   第一優先：
+   場景手動指定 characterImage
+
+   第二優先：
+   依 speaker 自動尋找固定立繪
+===================================================== */
+
+function getStoryCharacterPortrait({
+
+  speaker = "",
+
+  characterImage = "",
+
+  characterPosition = ""
+
+} = {}) {
+
+
+  if (characterImage) {
+
+    return {
+
+      image:
+        characterImage,
+
+      position:
+        characterPosition
+        ||
+        "right"
+
+    };
+
+  }
+
+
+  const preset =
+    STORY_CHARACTER_PORTRAITS[
+      speaker
+    ];
+
+
+  if (!preset) {
+
+    return null;
+
+  }
+
+
+  return {
+
+    image:
+      preset.image,
+
+    position:
+      characterPosition
+      ||
+      preset.position
+      ||
+      "right"
+
+  };
 
 }
 
@@ -771,43 +962,53 @@ function renderStoryScene({
 
   nextText = "",
 
-  nextAction = null
+  nextAction = null,
+
+  characterImage = "",
+
+  characterPosition = "",
+
+  showCharacter = true
 
 }) {
+
 
   const screen =
     ensureStoryScreen();
 
 
   if (!screen) {
-
     return;
-
   }
 
 
   /* ===============================================
-     選項按鈕
-
-     預設：每次進入這一幕重新隨機排列。
-     需要固定順序時：shuffle: false
+     選項洗牌
   =============================================== */
 
   const normalizedChoices =
     Array.isArray(choices)
-    ? choices
-    : [];
+      ? choices
+      : [];
 
 
   const displayChoices =
+
     shuffle === false
-    ? [...normalizedChoices]
-    : shuffleStoryChoices(
-        normalizedChoices
-      );
+
+      ? [...normalizedChoices]
+
+      : shuffleStoryChoices(
+          normalizedChoices
+        );
 
 
-  let actionsHTML = "";
+  /* ===============================================
+     選項 HTML
+  =============================================== */
+
+  let actionsHTML =
+    "";
 
 
   if (
@@ -859,10 +1060,14 @@ function renderStoryScene({
 
 
   else if (
+
     nextText
+
     &&
-    typeof nextAction ===
-      "function"
+
+    typeof nextAction
+    === "function"
+
   ) {
 
     actionsHTML = `
@@ -891,10 +1096,11 @@ function renderStoryScene({
 
 
   /* ===============================================
-     背景圖片
+     背景
   =============================================== */
 
-  let backgroundStyle = "";
+  let backgroundStyle =
+    "";
 
 
   if (image) {
@@ -913,29 +1119,102 @@ function renderStoryScene({
 
 
   /* ===============================================
-     NPC 名牌
+     說話者名字
   =============================================== */
 
   const speakerHTML =
+
     speaker
-    ?
-    `
 
-      <div
-        class="story-rpg-speaker"
-      >
+      ?
 
-        ${speaker}
+      `
 
-      </div>
+        <div
+          class="story-rpg-speaker"
+        >
 
-    `
-    :
-    "";
+          ${speaker}
+
+        </div>
+
+      `
+
+      :
+
+      "";
 
 
   /* ===============================================
-     輸出完整畫面
+     尋找人物
+  =============================================== */
+
+  const portrait =
+
+    showCharacter === false
+
+      ? null
+
+      : getStoryCharacterPortrait({
+
+          speaker:
+            speaker,
+
+          characterImage:
+            characterImage,
+
+          characterPosition:
+            characterPosition
+
+        });
+
+
+  /* ===============================================
+     人物 HTML
+  =============================================== */
+
+  const characterHTML =
+
+    portrait
+
+      ?
+
+      `
+
+        <div
+          class="
+            story-rpg-character
+            story-rpg-character-${portrait.position}
+          "
+        >
+
+          <img
+            src="${portrait.image}"
+
+            alt="${
+              speaker
+              ||
+              imageAlt
+              ||
+              "角色"
+            }"
+
+            onerror="
+              this.parentElement.style.display='none'
+            "
+          >
+
+        </div>
+
+      `
+
+      :
+
+      "";
+
+
+  /* ===============================================
+     完整畫面
   =============================================== */
 
   screen.innerHTML = `
@@ -956,52 +1235,73 @@ function renderStoryScene({
       ></div>
 
 
+      ${characterHTML}
+
+
       <div
         class="story-rpg-top"
       >
 
         ${
           episode
-          ?
-          `
-            <div
-              class="story-rpg-episode"
-            >
-              ${episode}
-            </div>
-          `
-          :
-          ""
+
+            ?
+
+            `
+              <div
+                class="story-rpg-episode"
+              >
+
+                ${episode}
+
+              </div>
+            `
+
+            :
+
+            ""
         }
 
 
         ${
           location
-          ?
-          `
-            <div
-              class="story-rpg-location"
-            >
-              ${location}
-            </div>
-          `
-          :
-          ""
+
+            ?
+
+            `
+              <div
+                class="story-rpg-location"
+              >
+
+                ${location}
+
+              </div>
+            `
+
+            :
+
+            ""
         }
 
 
         ${
           title
-          ?
-          `
-            <div
-              class="story-rpg-title"
-            >
-              ${title}
-            </div>
-          `
-          :
-          ""
+
+            ?
+
+            `
+              <div
+                class="story-rpg-title"
+              >
+
+                ${title}
+
+              </div>
+            `
+
+            :
+
+            ""
         }
 
       </div>
@@ -1039,7 +1339,7 @@ function renderStoryScene({
 
 
   /* ===============================================
-     保存這一幕的選項
+     儲存洗牌後選項
   =============================================== */
 
   window.__storyChoices =
@@ -1091,7 +1391,8 @@ function storyEngineChoose(
 
   const choices =
     window.__storyChoices
-    || [];
+    ||
+    [];
 
 
   const choice =
@@ -1099,15 +1400,9 @@ function storyEngineChoose(
 
 
   if (!choice) {
-
     return;
-
   }
 
-
-  /*
-    第二集目前使用的是 action
-  */
 
   if (
     typeof choice.action ===
@@ -1120,10 +1415,6 @@ function storyEngineChoose(
 
   }
 
-
-  /*
-    未來也支援 nextAction
-  */
 
   if (
     typeof choice.nextAction ===
@@ -1175,12 +1466,14 @@ function applyStoryEffects(
     playerData.money =
       Number(
         playerData.money
-        || 0
+        ||
+        0
       )
       +
       Number(
         effects.money
-        || 0
+        ||
+        0
       );
 
   }
@@ -1194,12 +1487,14 @@ function applyStoryEffects(
     playerData.favor =
       Number(
         playerData.favor
-        || 0
+        ||
+        0
       )
       +
       Number(
         effects.favor
-        || 0
+        ||
+        0
       );
 
   }
@@ -1213,12 +1508,14 @@ function applyStoryEffects(
     playerData.alert =
       Number(
         playerData.alert
-        || 0
+        ||
+        0
       )
       +
       Number(
         effects.alert
-        || 0
+        ||
+        0
       );
 
   }
@@ -1232,12 +1529,14 @@ function applyStoryEffects(
     playerData.etiquette =
       Number(
         playerData.etiquette
-        || 0
+        ||
+        0
       )
       +
       Number(
         effects.etiquette
-        || 0
+        ||
+        0
       );
 
   }
@@ -1268,16 +1567,17 @@ function changeRelationship(
     !gameState.relationships
   ) {
 
-    gameState.relationships = {};
+    gameState.relationships =
+      {};
 
   }
 
 
   const current =
     Number(
-      gameState
-        .relationships[npc]
-      || 0
+      gameState.relationships[npc]
+      ||
+      0
     );
 
 
@@ -1286,7 +1586,8 @@ function changeRelationship(
     +
     Number(
       amount
-      || 0
+      ||
+      0
     );
 
 
@@ -1320,9 +1621,9 @@ function getRelationship(
 
 
   return Number(
-    gameState
-      .relationships[npc]
-    || 0
+    gameState.relationships[npc]
+    ||
+    0
   );
 
 }
@@ -1341,7 +1642,8 @@ function setStoryFlag(
     !gameState.storyFlags
   ) {
 
-    gameState.storyFlags = {};
+    gameState.storyFlags =
+      {};
 
   }
 
@@ -1379,8 +1681,7 @@ function getStoryFlag(
   }
 
 
-  return gameState
-    .storyFlags[key];
+  return gameState.storyFlags[key];
 
 }
 
@@ -1420,6 +1721,10 @@ function setStoryProgress(
 
 window.shuffleStoryChoices =
   shuffleStoryChoices;
+
+
+window.getStoryCharacterPortrait =
+  getStoryCharacterPortrait;
 
 
 window.renderStoryScene =

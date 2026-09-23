@@ -4386,3 +4386,95 @@ window.addEventListener(
 
   }
 );
+
+/* =====================================================
+   新開局銀兩起點
+   第一集建立角色後自動記錄起始銀兩
+===================================================== */
+
+(function installRunStartSilverTracker() {
+
+  if (
+    window.__runStartSilverTrackerInstalled
+  ) {
+    return;
+  }
+
+
+  window.__runStartSilverTrackerInstalled =
+    true;
+
+
+  const originalCreateCharacter =
+    createCharacter;
+
+
+  createCharacter =
+    function (
+      name
+    ) {
+
+      originalCreateCharacter(
+        name
+      );
+
+
+      const startingSilver =
+        Number(
+          playerData.money
+          ||
+          0
+        );
+
+
+      /* ===============================================
+         本局最初銀兩
+      =============================================== */
+
+      gameState.runStartSilver =
+        startingSilver;
+
+
+      /* ===============================================
+         每集銀兩紀錄重新開始
+      =============================================== */
+
+      gameState.episodeSilverBalances = {
+
+        "1": {
+
+          start:
+            startingSilver,
+
+          end:
+            null,
+
+          delta:
+            null
+
+        }
+
+      };
+
+
+      if (
+        typeof saveGame ===
+        "function"
+      ) {
+
+        saveGame();
+
+      }
+
+
+      console.log(
+        `新開局起始銀兩：${startingSilver} 兩`
+      );
+
+    };
+
+
+  window.createCharacter =
+    createCharacter;
+
+})();

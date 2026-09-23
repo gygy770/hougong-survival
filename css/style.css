@@ -2656,3 +2656,219 @@ and
   }
 
 }
+
+/* =========================================
+   劇情頁：滿版場景圖 + 底部對話框
+========================================= */
+
+#storyScreen.story-screen-full {
+  position: relative;
+  min-height: 100svh;
+  background: #1a0008;
+  overflow: hidden;
+  padding: 0;
+}
+
+.story-scene-full {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  background-color: #1a0008;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.story-scene-dim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(20, 0, 6, .28) 0%,
+      rgba(20, 0, 6, .18) 18%,
+      rgba(20, 0, 6, .20) 42%,
+      rgba(20, 0, 6, .55) 72%,
+      rgba(20, 0, 6, .82) 100%
+    );
+  z-index: 1;
+}
+
+.story-scene-topbar {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 18px 16px 0;
+}
+
+.story-episode-line {
+  color: #cfa55f;
+  font-size: 14px;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  opacity: .95;
+}
+
+.story-location-line {
+  color: rgba(246, 231, 207, .78);
+  font-size: 13px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.story-title-line {
+  color: #e8c27a;
+  font-size: 36px;
+  line-height: 1.15;
+  letter-spacing: 6px;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
+
+.story-dialogue-area {
+  position: relative;
+  z-index: 2;
+  padding: 0 14px 16px;
+}
+
+.story-speaker-tag {
+  display: inline-block;
+  margin-left: 8px;
+  margin-bottom: 8px;
+  padding: 7px 12px;
+  border: 1px solid rgba(214, 173, 99, .45);
+  border-radius: 10px;
+  background: rgba(58, 10, 18, .82);
+  color: #e0b767;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.story-dialogue-box {
+  background: rgba(34, 3, 10, .82);
+  border: 1px solid rgba(214, 173, 99, .35);
+  border-radius: 16px;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, .28),
+    inset 0 0 0 1px rgba(255, 255, 255, .02);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 16px 16px 14px;
+}
+
+.story-dialogue-content {
+  color: #f8ead0;
+  font-size: 17px;
+  line-height: 1.9;
+  text-align: left;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .28);
+
+  max-height: 30svh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.story-dialogue-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.story-dialogue-content::-webkit-scrollbar-thumb {
+  background: rgba(214, 173, 99, .28);
+  border-radius: 999px;
+}
+
+.story-dialogue-actions {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.story-next-button,
+.story-choice-button {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+
+  background:
+    linear-gradient(
+      to right,
+      #8f222c 0%,
+      #c48b4a 45%,
+      #d9b46c 50%,
+      #c48b4a 55%,
+      #8f222c 100%
+    );
+
+  color: #2d0b0b;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+}
+
+.story-choice-button {
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+
+.story-next-button:active,
+.story-choice-button:active {
+  transform: scale(.99);
+}
+
+@media (max-width: 480px) {
+  .story-scene-full {
+    min-height: 100svh;
+    background-position: center top;
+  }
+
+  .story-scene-topbar {
+    padding-top: 16px;
+  }
+
+  .story-episode-line {
+    font-size: 13px;
+    letter-spacing: 3px;
+  }
+
+  .story-location-line {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .story-title-line {
+    font-size: 28px;
+    letter-spacing: 4px;
+  }
+
+  .story-dialogue-area {
+    padding: 0 10px 12px;
+  }
+
+  .story-speaker-tag {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .story-dialogue-box {
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+  }
+
+  .story-dialogue-content {
+    font-size: 16px;
+    line-height: 1.85;
+    max-height: 28svh;
+  }
+
+  .story-next-button,
+  .story-choice-button {
+    padding: 13px 14px;
+    font-size: 17px;
+  }
+}
